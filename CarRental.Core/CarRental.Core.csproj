@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CarRental.SharedKernel\CarRental.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Business\Dtos\" />
+    <Folder Include="Business\Converters\" />
+    <Folder Include="Business\Exceptions\" />
+    <Folder Include="Business\Services\" />
+    <Folder Include="Domain\Entities\" />
+    <Folder Include="Domain\Interfaces\" />
+  </ItemGroup>
+
+</Project>
