@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Infrastructure.Data.Database
 {
-    public partial class postgresContext : DbContext
+    public partial class CarRentalDbContext : DbContext
     {
-        public postgresContext()
+        public CarRentalDbContext()
         {
         }
 
-        public postgresContext(DbContextOptions<postgresContext> options)
+        public CarRentalDbContext(DbContextOptions<CarRentalDbContext> options)
             : base(options)
         {
         }
