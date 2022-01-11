@@ -13,7 +13,7 @@ namespace CarRental.Core.Business.Dtos
         [Required]
         public string Surname { get; set; } = null!;
         [Required]
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
         [Required]
         public string TelephoneNumber { get; set; } = null!;
     }
