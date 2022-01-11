@@ -22,6 +22,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+#region Custom middleware
+app.SetupMiddleware(builder.Services);
+#endregion
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
