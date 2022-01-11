@@ -6,7 +6,7 @@
         public string IdentityNumber { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string Surname { get; set; } = null!;
-        public DateTime DateOfBirth { get; set; }
+        public DateOnly DateOfBirth { get; set; }
         public string TelephoneNumber { get; set; } = null!;
     }
 }
