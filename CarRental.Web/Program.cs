@@ -1,3 +1,5 @@
+using CarRental.Web.Application.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+#region Custom services
+builder.Services.SetupServices(builder.Configuration);
+#endregion
 
 var app = builder.Build();
 

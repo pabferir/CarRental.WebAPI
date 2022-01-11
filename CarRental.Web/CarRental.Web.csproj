@@ -12,11 +12,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CarRental.Core\CarRental.Core.csproj" />
+    <ProjectReference Include="..\CarRental.Infrastructure\CarRental.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Application\Controllers\" />
-    <Folder Include="Application\Configuration\" />
   </ItemGroup>
 
 </Project>
