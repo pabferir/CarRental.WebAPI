@@ -15,7 +15,6 @@
     <Folder Include="Business\Converters\" />
     <Folder Include="Business\Exceptions\" />
     <Folder Include="Business\Services\" />
-    <Folder Include="Domain\Entities\" />
     <Folder Include="Domain\Interfaces\" />
   </ItemGroup>
 
