@@ -11,8 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Business\Dtos\" />
-    <Folder Include="Business\Converters\" />
     <Folder Include="Business\Exceptions\" />
     <Folder Include="Business\Services\" />
     <Folder Include="Domain\Interfaces\" />
