@@ -28,8 +28,8 @@ namespace CarRental.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("dateOfBirth");
 
                     b.Property<string>("IdentityNumber")

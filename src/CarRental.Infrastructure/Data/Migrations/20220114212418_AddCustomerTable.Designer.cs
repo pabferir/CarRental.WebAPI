@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CarRental.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CarRentalDbContext))]
-    [Migration("20220114205752_AddCustomerTable")]
+    [Migration("20220114212418_AddCustomerTable")]
     partial class AddCustomerTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,8 +30,8 @@ namespace CarRental.Infrastructure.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("dateOfBirth");
 
                     b.Property<string>("IdentityNumber")
