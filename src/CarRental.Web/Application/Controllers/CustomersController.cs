@@ -58,20 +58,12 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditCustomer(Customer customer)
         {
-            var updatedCustomer = new Customer
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                Surname = customer.Surname,
-                DateOfBirth = customer.DateOfBirth,
-                IdentityNumber = customer.IdentityNumber,
-                TelephoneNumber = customer.TelephoneNumber
-            };
-            var result = _context.Update(updatedCustomer);
-            result.State = EntityState.Modified;
+            var result = _context.Set<Customer>().Attach(customer);
+            _context.Entry(customer).State = EntityState.Modified;
             await _context.SaveChangesAsync().ConfigureAwait(false);
             result.State = EntityState.Detached;
             return Ok();
+
         }
 
         [HttpDelete]
