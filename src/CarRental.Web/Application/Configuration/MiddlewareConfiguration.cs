@@ -23,7 +23,7 @@ namespace CarRental.Web.Application.Configuration
             {
                 throw new NullReferenceException($"The context { context } cannot be null");
             }
-            ((T)context)?.Database.Migrate();
+            ((T)context).Database.Migrate();
         }
     }
 }
