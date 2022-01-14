@@ -21,11 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CarRental.Core\CarRental.Core.csproj" />
+    <Folder Include="Business\Services\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Business\Services\" />
+    <ProjectReference Include="..\..\src\CarRental.Core\CarRental.Core.csproj" />
   </ItemGroup>
 
 </Project>

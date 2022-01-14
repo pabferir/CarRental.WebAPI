@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CarRental.SharedKernel\CarRental.SharedKernel.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Business\Exceptions\" />
     <Folder Include="Business\Services\" />
     <Folder Include="Domain\Interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CarRental.SharedKernel\CarRental.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>
