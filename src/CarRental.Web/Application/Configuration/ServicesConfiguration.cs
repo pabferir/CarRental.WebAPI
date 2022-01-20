@@ -14,9 +14,9 @@ namespace CarRental.Web.Application.Configuration
             SetupRepositories(services);
         }
 
-        private static void SetupDatabase<T>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where T : DbContext
+        private static void SetupDatabase<TContext>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where TContext : DbContext
         {
-            services.AddDbContext<T>(options => options.UseNpgsql(configuration.GetConnectionString(connectionStringName)));
+            services.AddDbContext<TContext>(options => options.UseNpgsql(configuration.GetConnectionString(connectionStringName)));
         }
 
         private static void SetupRepositories(IServiceCollection services)

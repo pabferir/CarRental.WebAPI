@@ -10,7 +10,7 @@ namespace CarRental.Web.Application.Configuration
             UpdateDatabase<CarRentalDbContext>(services);
         }
 
-        private static void UpdateDatabase<T>(IServiceCollection services) where T : DbContext
+        private static void UpdateDatabase<TContext>(IServiceCollection services) where TContext : DbContext
         {
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
             if (serviceProvider == null)
@@ -18,12 +18,12 @@ namespace CarRental.Web.Application.Configuration
                 throw new NullReferenceException($"The service provider { serviceProvider } cannot be null");
             }
 
-            object context = serviceProvider.GetService(typeof(T));
+            object context = serviceProvider.GetService(typeof(TContext));
             if (context == null)
             {
                 throw new NullReferenceException($"The context { context } cannot be null");
             }
-            ((T)context).Database.Migrate();
+            ((TContext)context).Database.Migrate();
         }
     }
 }

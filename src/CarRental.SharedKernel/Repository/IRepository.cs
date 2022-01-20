@@ -2,12 +2,12 @@
 
 namespace CarRental.SharedKernel.Repository
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<TEntity> where TEntity : class
     {
-        Task<T> Insert(T entity);
-        Task<IEnumerable<T>> Get(Expression<Func<T, bool>> filter = null);
-        Task<T> Update(T entity);
-        Task<bool> Delete(T entity);
-        Task<bool> Delete(Expression<Func<T, bool>> filter = null);
+        Task<TEntity> Insert(TEntity entity);
+        Task<IEnumerable<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null);
+        Task<TEntity> Update(TEntity entity);
+        Task<bool> Delete(TEntity entity);
+        Task<bool> Delete(Expression<Func<TEntity, bool>> filter = null);
     }
 }
