@@ -1,4 +1,6 @@
-﻿using CarRental.Infrastructure.Data.Database;
+﻿using CarRental.Core.Domain.RepositoryInterfaces;
+using CarRental.Infrastructure.Data.Database;
+using CarRental.Infrastructure.Data.Repositories;
 using CarRental.SharedKernel.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,7 @@ namespace CarRental.Web.Application.Configuration
         private static void SetupRepositories(IServiceCollection services)
         {
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
         }
     }
 }
