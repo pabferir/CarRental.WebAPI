@@ -32,7 +32,7 @@ namespace CarRental.Infrastructure.Data.Database
                 entity.ToTable("Customer");
 
                 entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("id");
 
                 entity.Property(e => e.DateOfBirth).HasColumnName("dateOfBirth");

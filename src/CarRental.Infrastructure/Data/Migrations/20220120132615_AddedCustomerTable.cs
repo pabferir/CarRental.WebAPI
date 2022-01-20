@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CarRental.Infrastructure.Data.Migrations
 {
-    public partial class AddCustomerTable : Migration
+    public partial class AddedCustomerTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

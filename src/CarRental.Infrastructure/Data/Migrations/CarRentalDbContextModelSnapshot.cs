@@ -25,6 +25,7 @@ namespace CarRental.Infrastructure.Data.Migrations
             modelBuilder.Entity("CarRental.Core.Domain.Entities.Customer", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
