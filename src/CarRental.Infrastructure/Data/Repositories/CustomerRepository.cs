@@ -2,7 +2,6 @@
 using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.Infrastructure.Data.Database;
 using CarRental.SharedKernel.Repository;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CarRental.Infrastructure.Data.Repositories
@@ -12,7 +11,7 @@ namespace CarRental.Infrastructure.Data.Repositories
         public CustomerRepository(CarRentalDbContext context) : base(context)
         {
         }
-        
+
         public Task<Customer> InsertCustomer(Customer customer)
         {
             return Insert(customer);

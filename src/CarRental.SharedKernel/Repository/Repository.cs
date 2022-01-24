@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.ComponentModel;
 
 namespace CarRental.SharedKernel.Repository
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        private DbContext DbContext { get; set; }
+        private DbContext DbContext { get; }
 
         public Repository(DbContext context)
         {
