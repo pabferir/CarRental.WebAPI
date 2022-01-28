@@ -10,7 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 #region Custom services
-builder.Services.SetupServices(builder.Configuration);
+builder.Services.SetupServiceContainer(builder.Configuration);
 #endregion
 
 var app = builder.Build();
