@@ -6,10 +6,10 @@ namespace CarRental.Core.Domain.RepositoryInterfaces
 {
     public interface ICustomerRepository : IRepository<Customer>
     {
-        Task<Customer> InsertCustomer(Customer customer);
-        Task<IEnumerable<Customer>> GetCustomer(Expression<Func<Customer, bool>> filter = null);
-        Task<Customer> UpdateCustomer(Customer customer);
-        Task<bool> DeleteCustomer(Customer customer);
-        Task<bool> DeleteCustomer(Expression<Func<Customer, bool>> filter = null);
+        Task<Customer> InsertCustomer(Customer customer, bool saveChanges);
+        Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>>? filter);
+        Task<Customer> UpdateCustomer(Customer customer, bool saveChanges);
+        Task<bool> DeleteCustomer(Customer customer, bool saveChanges);
+        Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter, bool saveChanges);
     }
 }

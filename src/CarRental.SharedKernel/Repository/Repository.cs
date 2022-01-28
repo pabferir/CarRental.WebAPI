@@ -12,16 +12,19 @@ namespace CarRental.SharedKernel.Repository
             DbContext = context;
         }
 
-        public async Task<TEntity> Insert(TEntity entity)
+        public async Task<TEntity> Insert(TEntity entity, bool saveChanges = true)
         {
             var result = await DbContext.Set<TEntity>().AddAsync(entity).ConfigureAwait(false);
             result.State = EntityState.Added;
-            await DbContext.SaveChangesAsync().ConfigureAwait(false);
-            result.State = EntityState.Detached;
+            if (saveChanges)
+            {
+                await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                result.State = EntityState.Detached;
+            }
             return result.Entity;
         }
 
-        public async Task<IEnumerable<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null)
+        public async Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>>? filter = null)
         {
             IQueryable<TEntity> query = DbContext.Set<TEntity>().AsNoTracking();
             if (filter != null)
@@ -31,31 +34,38 @@ namespace CarRental.SharedKernel.Repository
             return await query.ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<TEntity> Update(TEntity entity)
+        public async Task<TEntity> Update(TEntity entity, bool saveChanges = true)
         {
             var result = DbContext.Set<TEntity>().Attach(entity);
             DbContext.Entry(entity).State = EntityState.Modified;
-            await DbContext.SaveChangesAsync().ConfigureAwait(false);
-            result.State = EntityState.Detached;
+            if (saveChanges)
+            {
+                await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                result.State = EntityState.Detached;
+            }
             return result.Entity;
         }
 
-        public async Task<bool> Delete(TEntity entity)
+        public async Task<bool> Delete(TEntity entity, bool saveChanges = true)
         {
             var result = DbContext.Set<TEntity>().Remove(entity);
             result.State = EntityState.Deleted;
-            var deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
-            result.State = EntityState.Detached;
+            var deleted = 0;
+            if (saveChanges)
+            {
+                deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                result.State = EntityState.Detached;
+            }
             return deleted > 0;
         }
 
-        public async Task<bool> Delete(Expression<Func<TEntity, bool>> filter = null)
+        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = true)
         {
             var result = new List<bool>();
-            var entities = await Get(filter).ConfigureAwait(false);
+            var entities = await GetWhere(filter).ConfigureAwait(false);
             foreach(var entity in entities)
             {
-                result.Add(await Delete(entity).ConfigureAwait(false));
+                result.Add(await Delete(entity, saveChanges).ConfigureAwait(false));
             }
             return result.All(r => r == true);
         }

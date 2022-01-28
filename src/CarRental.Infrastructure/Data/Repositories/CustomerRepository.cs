@@ -12,29 +12,29 @@ namespace CarRental.Infrastructure.Data.Repositories
         {
         }
 
-        public Task<Customer> InsertCustomer(Customer customer)
+        public Task<Customer> InsertCustomer(Customer customer, bool saveChanges = true)
         {
-            return Insert(customer);
+            return Insert(customer, saveChanges);
         }
 
-        public Task<IEnumerable<Customer>> GetCustomer(Expression<Func<Customer, bool>> filter = null)
+        public Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>>? filter = null)
         {
-            return Get(filter);
+            return GetWhere(filter);
         }
 
-        public Task<Customer> UpdateCustomer(Customer customer)
+        public Task<Customer> UpdateCustomer(Customer customer, bool saveChanges = true)
         {
-            return Update(customer);
+            return Update(customer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomer(Customer customer)
+        public Task<bool> DeleteCustomer(Customer customer, bool saveChanges = true)
         {
-            return Delete(customer);
+            return Delete(customer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomer(Expression<Func<Customer, bool>> filter = null)
+        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter = null, bool saveChanges = true)
         {
-            return Delete(filter);
+            return DeleteWhere(filter, saveChanges);
         }
     }
 }

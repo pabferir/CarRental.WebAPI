@@ -1,8 +1,8 @@
 ﻿using CarRental.Core.Domain.Entities;
 using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.Infrastructure.Data.Database;
+using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Web.Application.Controllers
 {
@@ -10,11 +10,13 @@ namespace CarRental.Web.Application.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
+        private readonly IUnitOfWork<CarRentalDbContext> _uoW;
         private readonly ICustomerRepository _customerRepository;
 
-        public CustomersController(ICustomerRepository customerRepository)
+        public CustomersController(IUnitOfWork<CarRentalDbContext> uoW)
         {
-            _customerRepository = customerRepository;
+            _uoW = uoW;
+            _customerRepository = uoW.GetRepository<ICustomerRepository>();
         }
 
         [HttpPost]
@@ -22,7 +24,8 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCustomer(Customer customer)
         {
-            var result = await _customerRepository.InsertCustomer(customer).ConfigureAwait(false);
+            var result = await _customerRepository.InsertCustomer(customer, false).ConfigureAwait(false);
+            await _uoW.SaveChangesAsync();
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -32,7 +35,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var result = await _customerRepository.GetCustomer().ConfigureAwait(false);
+            var result = await _customerRepository.GetCustomerWhere(null).ConfigureAwait(false);
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
@@ -42,7 +45,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
-            var result = await _customerRepository.GetCustomer(customer => customer.Id == id).ConfigureAwait(false);
+            var result = await _customerRepository.GetCustomerWhere(customer => customer.Id == id).ConfigureAwait(false);
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
@@ -52,7 +55,8 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditCustomer(Customer customer)
         {
-            var result = await _customerRepository.UpdateCustomer(customer).ConfigureAwait(false);
+            var result = await _customerRepository.UpdateCustomer(customer, false).ConfigureAwait(false);
+            await _uoW.SaveChangesAsync();
             return StatusCode(StatusCodes.Status200OK, result);
 
         }
@@ -63,7 +67,8 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAllCustomers()
         {
-            var result = await _customerRepository.DeleteCustomer().ConfigureAwait(false);
+            await _customerRepository.DeleteCustomerWhere(null, false).ConfigureAwait(false);
+            var result = await _uoW.SaveChangesAsync();
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
@@ -73,8 +78,9 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
-            var result = await _customerRepository.DeleteCustomer(customer => customer.Id == id).ConfigureAwait(false);
-            return StatusCode(StatusCodes.Status200OK, result);
+            await _customerRepository.DeleteCustomerWhere(customer => customer.Id == id, false).ConfigureAwait(false);
+            var result = await _uoW.SaveChangesAsync();
+            return StatusCode(StatusCodes.Status200OK, result > 0);
         }
     }
 }
