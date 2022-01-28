@@ -1,5 +1,5 @@
-﻿using CarRental.Core.Domain.RepositoryInterfaces;
-using CarRental.Infrastructure.Data.Database;
+﻿using CarRental.Core.Domain.Context;
+using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.Infrastructure.Data.Repositories;
 using CarRental.SharedKernel.Repository;
 using CarRental.SharedKernel.UnitOfWork;

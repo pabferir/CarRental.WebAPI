@@ -1,6 +1,6 @@
-﻿using CarRental.Core.Domain.Entities;
+﻿using CarRental.Core.Domain.Context;
+using CarRental.Core.Domain.Entities;
 using CarRental.Core.Domain.RepositoryInterfaces;
-using CarRental.Infrastructure.Data.Database;
 using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 
