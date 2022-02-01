@@ -36,7 +36,7 @@ namespace CarRental.Web.Application.Configuration
         {
             services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
         }
-
+      
         private static void SetupServices(IServiceCollection services)
         {
             services.AddTransient(typeof(IService<>), typeof(Service<>));
