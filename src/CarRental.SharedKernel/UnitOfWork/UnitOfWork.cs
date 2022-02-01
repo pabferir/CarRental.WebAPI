@@ -19,15 +19,15 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <summary>
         /// Retrieves a Repository from the service container.
         /// </summary>
-        /// <typeparam name="TEntity"> The domain Entity that the Repository encapsulates. </typeparam>
-        /// <returns> The Repository that encapsulates the domain Entity TEntity. </returns>
+        /// <typeparam name="TRepository"> The type of the Repository. </typeparam>
+        /// <returns> A service object of type TRepository. </returns>
         /// <exception cref="RepositoryNotFoundException"> The requested Repository was not found in the service container. </exception>
-        public TEntity GetRepository<TEntity>() where TEntity : class
+        public TRepository GetRepository<TRepository>() where TRepository : class
         {
-            var repository = ServiceProvider.GetService<TEntity>();
+            var repository = ServiceProvider.GetService<TRepository>();
             if (repository == null)
             {
-                throw new RepositoryNotFoundException($"Couldn't find the repository of {typeof(TEntity).Name} in the services container. Please, register the repository during startup.");
+                throw new RepositoryNotFoundException($"Couldn't find the repository of type {typeof(TRepository).Name} in the services container. Please, register the repository during startup.");
             }
             return repository;
         }

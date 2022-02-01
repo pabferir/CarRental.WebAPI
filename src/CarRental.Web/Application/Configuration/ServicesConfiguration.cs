@@ -1,7 +1,10 @@
-﻿using CarRental.Core.Domain.RepositoryInterfaces;
-using CarRental.Infrastructure.Data.Database;
+﻿using CarRental.Core.Business.Services;
+using CarRental.Core.Domain.Context;
+using CarRental.Core.Domain.RepositoryInterfaces;
+using CarRental.Core.Domain.ServiceInterfaces;
 using CarRental.Infrastructure.Data.Repositories;
 using CarRental.SharedKernel.Repository;
+using CarRental.SharedKernel.Service;
 using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +12,12 @@ namespace CarRental.Web.Application.Configuration
 {
     public static class ServicesConfiguration
     {
-        public static void SetupServices(this IServiceCollection services, IConfiguration configuration)
+        public static void SetupServiceContainer(this IServiceCollection services, IConfiguration configuration)
         {
             SetupDatabase<CarRentalDbContext>(services, configuration, "CarRentalPostgreSQL");
             SetupRepositories(services);
             SetupUnitOfWork(services);
+            SetupServices(services);
         }
 
         private static void SetupDatabase<TContext>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where TContext : DbContext
@@ -31,6 +35,12 @@ namespace CarRental.Web.Application.Configuration
         private static void SetupUnitOfWork(IServiceCollection services)
         {
             services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+        }
+      
+        private static void SetupServices(IServiceCollection services)
+        {
+            services.AddTransient(typeof(IService<>), typeof(Service<>));
+            // Add service implementations here
         }
     }
 }

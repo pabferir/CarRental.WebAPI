@@ -1,7 +1,7 @@
 ﻿using CarRental.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CarRental.Infrastructure.Data.Database
+namespace CarRental.Core.Domain.Context
 {
     public partial class CarRentalDbContext : DbContext
     {
