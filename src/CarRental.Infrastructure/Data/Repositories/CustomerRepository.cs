@@ -1,4 +1,5 @@
-﻿using CarRental.Core.Domain.Context;
+﻿using CarRental.Core.Business.Converters;
+using CarRental.Core.Domain.Context;
 using CarRental.Core.Domain.Entities;
 using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.SharedKernel.Repository;
@@ -12,8 +13,9 @@ namespace CarRental.Infrastructure.Data.Repositories
         {
         }
 
-        public Task<Customer> InsertCustomer(Customer customer, bool saveChanges = true)
+        public Task<Customer> InsertCustomer(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = true)
         {
+            var customer = CustomerConverter.PropertiesToModel(identityNumber, name, surname, dateOfBirth, telephoneNumber);
             return Insert(customer, saveChanges);
         }
 
@@ -22,14 +24,10 @@ namespace CarRental.Infrastructure.Data.Repositories
             return GetWhere(filter);
         }
 
-        public Task<Customer> UpdateCustomer(Customer customer, bool saveChanges = true)
+        public Task<Customer> UpdateCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = true)
         {
-            return Update(customer, saveChanges);
-        }
-
-        public Task<bool> DeleteCustomer(Customer customer, bool saveChanges = true)
-        {
-            return Delete(customer, saveChanges);
+            var updatedCustomer = CustomerConverter.PropertiesToModel(identityNumber, name, surname, dateOfBirth, telephoneNumber, id);
+            return Update(updatedCustomer, saveChanges);
         }
 
         public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter = null, bool saveChanges = true)

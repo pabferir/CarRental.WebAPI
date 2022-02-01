@@ -1,7 +1,5 @@
-﻿using CarRental.Core.Domain.Context;
-using CarRental.Core.Domain.Entities;
-using CarRental.Core.Domain.RepositoryInterfaces;
-using CarRental.SharedKernel.UnitOfWork;
+﻿using CarRental.Core.Business.Dtos;
+using CarRental.Core.Domain.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.Web.Application.Controllers
@@ -10,55 +8,50 @@ namespace CarRental.Web.Application.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly IUnitOfWork<CarRentalDbContext> _uoW;
-        private readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerService _customerService;
 
-        public CustomersController(IUnitOfWork<CarRentalDbContext> uoW)
+        public CustomersController(ICustomerService customerService)
         {
-            _uoW = uoW;
-            _customerRepository = uoW.GetRepository<ICustomerRepository>();
+            _customerService = customerService;
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Customer), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddCustomer(Customer customer)
+        public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
         {
-            var result = await _customerRepository.InsertCustomer(customer, false).ConfigureAwait(false);
-            await _uoW.SaveChangesAsync();
+            var result = await _customerService.CreateCustomer(customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber);
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IList<Customer>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IList<CustomerDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var result = await _customerRepository.GetCustomerWhere(null).ConfigureAwait(false);
+            var result = await _customerService.GetAllCustomers();
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
         [HttpGet("/{id}")]
-        [ProducesResponseType(typeof(Customer), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
-            var result = await _customerRepository.GetCustomerWhere(customer => customer.Id == id).ConfigureAwait(false);
+            var result = await _customerService.GetCustomerById(id);
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
         [HttpPut("/{id}")]
-        [ProducesResponseType(typeof(Customer), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditCustomer(Customer customer)
+        public async Task<IActionResult> EditCustomer(CustomerDto customerDto)
         {
-            var result = await _customerRepository.UpdateCustomer(customer, false).ConfigureAwait(false);
-            await _uoW.SaveChangesAsync();
+            var result = await _customerService.EditCustomer(customerDto.Id, customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber).ConfigureAwait(false);
             return StatusCode(StatusCodes.Status200OK, result);
-
         }
 
         [HttpDelete]
@@ -67,8 +60,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAllCustomers()
         {
-            await _customerRepository.DeleteCustomerWhere(null, false).ConfigureAwait(false);
-            var result = await _uoW.SaveChangesAsync();
+            var result = await _customerService.DeleteAllCustomers().ConfigureAwait(false);
             return StatusCode(StatusCodes.Status200OK, result);
         }
 
@@ -78,9 +70,8 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
-            await _customerRepository.DeleteCustomerWhere(customer => customer.Id == id, false).ConfigureAwait(false);
-            var result = await _uoW.SaveChangesAsync();
-            return StatusCode(StatusCodes.Status200OK, result > 0);
+            var result = await _customerService.DeleteCustomerById(id).ConfigureAwait(false);
+            return StatusCode(StatusCodes.Status200OK, result);
         }
     }
 }
