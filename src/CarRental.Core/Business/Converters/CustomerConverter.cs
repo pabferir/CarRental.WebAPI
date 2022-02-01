@@ -19,5 +19,33 @@ namespace CarRental.Core.Business.Converters
                 TelephoneNumber = customer.TelephoneNumber
             };
         }
+
+        public static Customer DtoToModel(CustomerDto customerDto)
+        {
+            if (customerDto == null) return new Customer();
+
+            return new Customer
+            {
+                Id = customerDto.Id,
+                IdentityNumber = customerDto.IdentityNumber,
+                Name = customerDto.Name,
+                Surname = customerDto.Surname,
+                DateOfBirth = customerDto.DateOfBirth,
+                TelephoneNumber = customerDto.TelephoneNumber
+            };
+        }
+
+        public static Customer PropertiesToModel(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, Guid id = default)
+        {
+            return DtoToModel(new CustomerDto
+            {
+                Id = id,
+                IdentityNumber = identityNumber,
+                Name = name,
+                Surname = surname,
+                DateOfBirth = dateOfBirth,
+                TelephoneNumber = telephoneNumber
+            });
+        }
     }
 }
