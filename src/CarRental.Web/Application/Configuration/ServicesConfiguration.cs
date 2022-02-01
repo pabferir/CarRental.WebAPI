@@ -41,6 +41,7 @@ namespace CarRental.Web.Application.Configuration
         {
             services.AddTransient(typeof(IService<>), typeof(Service<>));
             // Add service implementations here
+            services.AddTransient<ICustomerService, CustomerService>();
         }
     }
 }
