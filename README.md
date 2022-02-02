@@ -41,6 +41,7 @@ The Test projects mimic and point to the source projects. Currently, the only ex
 This project implements the following design patterns:
 - [Repository](https://martinfowler.com/eaaCatalog/repository.html)
 - [Unit of Work](https://martinfowler.com/eaaCatalog/unitOfWork.html)
+- [Service Layer](https://martinfowler.com/eaaCatalog/serviceLayer.html)
 
 ## Technology Stack
 This project makes use of the following technologies:
