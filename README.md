@@ -2,22 +2,22 @@
 > An ASP.NET Core 6.0 Web API using a Car Rental data model for training in .NET fundamentals and design patterns.
 
 ## Data Model
-<div style="display: flex; justify-content: center;">
+<p align="center">
     <img src=".github\assets\CarRentalWebAPI-data-model.png" width="600">
-</div>
+</p>
 
 ## Solution Design
 Design decisions are inspired by Clean Architecture guidelines from [ardalis/CleanArchitecture](https://github.com/ardalis/CleanArchitecture).
 
 ### Architecture
-<div style="display: flex; justify-content: center;">
+<p align="center">
     <img src=".github\assets\CarRentalWebAPI-project-architecture.png" width="600">
-</div>
+</p>
 
 ### Project Structure
-<div style="display: flex; justify-content: center;">
+<p align="center">
     <img src=".github\assets\CarRentalWebAPI-project-structure.png" width="600">
-</div>
+</p>
 
 #### Core Project
 The Core project is the center of the architecture design, as Web project and Infrastructure project components depend upon it. It hosts both the Domain and Business layers.
