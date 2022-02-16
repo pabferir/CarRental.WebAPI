@@ -13,7 +13,7 @@ namespace CarRental.SharedKernel.Repository
             DbContext = context;
         }
 
-        public async Task<TEntity> Insert(TEntity entity, bool saveChanges = true)
+        public async Task<TEntity> Insert(TEntity entity, bool saveChanges = false)
         {
             var result = await DbContext.Set<TEntity>().AddAsync(entity).ConfigureAwait(false);
             result.State = EntityState.Added;
@@ -35,7 +35,7 @@ namespace CarRental.SharedKernel.Repository
             return await query.ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<TEntity> Update(TEntity entity, bool saveChanges = true)
+        public async Task<TEntity> Update(TEntity entity, bool saveChanges = false)
         {
             var result = DbContext.Set<TEntity>().Attach(entity);
             DbContext.Entry(entity).State = EntityState.Modified;
@@ -47,7 +47,7 @@ namespace CarRental.SharedKernel.Repository
             return result.Entity;
         }
 
-        public async Task<bool> Delete(TEntity entity, bool saveChanges = true)
+        public async Task<bool> Delete(TEntity entity, bool saveChanges = false)
         {
             var result = DbContext.Set<TEntity>().Remove(entity);
             if (result == null)
@@ -64,7 +64,7 @@ namespace CarRental.SharedKernel.Repository
             return true;
         }
 
-        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = true)
+        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = false)
         {
             var entities = await GetWhere(filter).ConfigureAwait(false);
             foreach(var entity in entities)

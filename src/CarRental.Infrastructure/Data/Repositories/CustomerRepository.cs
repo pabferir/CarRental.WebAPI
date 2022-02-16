@@ -13,7 +13,7 @@ namespace CarRental.Infrastructure.Data.Repositories
         {
         }
 
-        public Task<Customer> InsertCustomer(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = true)
+        public Task<Customer> InsertCustomer(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = false)
         {
             var customer = CustomerConverter.PropertiesToModel(identityNumber, name, surname, dateOfBirth, telephoneNumber);
             return Insert(customer, saveChanges);
@@ -24,13 +24,13 @@ namespace CarRental.Infrastructure.Data.Repositories
             return GetWhere(filter);
         }
 
-        public Task<Customer> UpdateCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = true)
+        public Task<Customer> UpdateCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = false)
         {
             var updatedCustomer = CustomerConverter.PropertiesToModel(identityNumber, name, surname, dateOfBirth, telephoneNumber, id);
             return Update(updatedCustomer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter = null, bool saveChanges = true)
+        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter = null, bool saveChanges = false)
         {
             return DeleteWhere(filter, saveChanges);
         }
