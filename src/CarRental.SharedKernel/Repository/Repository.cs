@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CarRental.SharedKernel.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CarRental.SharedKernel.Repository
@@ -49,25 +50,31 @@ namespace CarRental.SharedKernel.Repository
         public async Task<bool> Delete(TEntity entity, bool saveChanges = true)
         {
             var result = DbContext.Set<TEntity>().Remove(entity);
+            if (result == null)
+            {
+                throw new DatabaseOperationNotCompletedException($"Couldn't delete the entity { entity } in the Database.");
+            }
             result.State = EntityState.Deleted;
-            var deleted = 0;
             if (saveChanges)
             {
-                deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                var deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
                 result.State = EntityState.Detached;
+                return deleted > 0;
             }
-            return deleted > 0;
+            return true;
         }
 
         public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = true)
         {
-            var result = new List<bool>();
             var entities = await GetWhere(filter).ConfigureAwait(false);
             foreach(var entity in entities)
             {
-                result.Add(await Delete(entity, saveChanges).ConfigureAwait(false));
+                if (!await Delete(entity, saveChanges).ConfigureAwait(false))
+                {
+                    throw new DatabaseOperationNotCompletedException($"Couldn't delete the entity { entity } in the Database.");
+                }
             }
-            return result.All(r => r == true);
+            return true;
         }
     }
 }
