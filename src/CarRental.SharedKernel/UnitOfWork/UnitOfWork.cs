@@ -1,6 +1,6 @@
 ﻿using CarRental.SharedKernel.Exceptions;
-using CarRental.SharedKernel.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CarRental.SharedKernel.UnitOfWork
@@ -29,6 +29,7 @@ namespace CarRental.SharedKernel.UnitOfWork
             {
                 throw new RepositoryNotFoundException($"Couldn't find the repository of type {typeof(TRepository).Name} in the services container. Please, register the repository during startup.");
             }
+
             return repository;
         }
 
@@ -38,16 +39,61 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <returns> The number of state entities written to database. </returns>
         public int SaveChanges()
         {
-            return Context.SaveChanges();
+            var result = Context.SaveChanges();
+            DetachTrackedEntities();
+
+            return result;
         }
 
         /// <summary>
         /// Asynchronously saves all changes made in the context TContext to the Database.
         /// </summary>
         /// <returns> The number of state entities written to database. </returns>
-        public Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync()
         {
-            return Context.SaveChangesAsync();
+            var result = await Context.SaveChangesAsync().ConfigureAwait(false);
+            DetachTrackedEntities();
+
+            return result;
+        }
+
+        public Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return Context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync(IDbContextTransaction transaction)
+        {
+            //using var transaction = Context.Database.CurrentTransaction;
+            if (transaction == null)
+            {
+                throw new NullTransactionException("Cannot commit database operation from null transaction.");
+            }
+            await SaveChangesAsync().ConfigureAwait(false);
+            await transaction.CommitAsync().ConfigureAwait(false);
+        }
+
+        public Task RollbackAsync(IDbContextTransaction transaction)
+        {
+            //using var transaction = Context.Database.CurrentTransaction;
+            if (transaction == null)
+            {
+                throw new NullTransactionException("Cannot rollback database operation from null transaction.");
+            }
+
+            return transaction.RollbackAsync();
+        }
+
+        private void DetachTrackedEntities()
+        {
+            var trackedEntities = Context.ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted)
+                .ToList();
+
+            foreach (var entity in trackedEntities)
+            {
+                entity.State = EntityState.Detached;
+            }
         }
     }
 }

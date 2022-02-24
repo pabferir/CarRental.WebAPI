@@ -67,6 +67,10 @@ namespace CarRental.SharedKernel.Repository
         public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = false)
         {
             var entities = await GetWhere(filter).ConfigureAwait(false);
+            if (!entities.Any())
+            {
+                return false;
+            }
             foreach(var entity in entities)
             {
                 if (!await Delete(entity, saveChanges).ConfigureAwait(false))

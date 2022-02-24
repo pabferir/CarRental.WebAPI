@@ -1,5 +1,5 @@
-﻿using CarRental.SharedKernel.Repository;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CarRental.SharedKernel.UnitOfWork
 {
@@ -8,9 +8,9 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <summary>
         /// Retrieves a Repository from the service container.
         /// </summary>
-        /// <typeparam name="TEntity"> The domain Entity that the Repository encapsulates. </typeparam>
-        /// <returns> The Repository that encapsulates the domain Entity TEntity. </returns>
-        TEntity GetRepository<TEntity>() where TEntity : class;
+        /// <typeparam name="TRepository"> The type of the Repository. </typeparam>
+        /// <returns> A service object of type TRepository. </returns>
+        TRepository GetRepository<TRepository>() where TRepository : class;
 
         /// <summary>
         /// Saves all changes made in the context TContext to the Database.
@@ -23,5 +23,11 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// </summary>
         /// <returns> The number of state entities written to database. </returns>
         Task<int> SaveChangesAsync();
+
+        Task<IDbContextTransaction> BeginTransactionAsync();
+
+        Task CommitAsync(IDbContextTransaction transaction);
+
+        Task RollbackAsync(IDbContextTransaction transaction);
     }
 }
