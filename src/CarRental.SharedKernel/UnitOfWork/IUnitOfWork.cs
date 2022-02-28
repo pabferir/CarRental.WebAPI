@@ -24,10 +24,24 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <returns> The number of state entities written to database. </returns>
         Task<int> SaveChangesAsync();
 
+        /// <summary>
+        /// Asynchronously starts a new DbContext transaction.
+        /// </summary>
+        /// <returns> A task that contains a IDbContextTransaction representing the transaction. </returns>
         Task<IDbContextTransaction> BeginTransactionAsync();
 
+        /// <summary>
+        /// Asynchronously commits to the Database all changes made in the context TContext within a given DbContext transaction.
+        /// </summary>
+        /// <param name="transaction"> Represents the ongoing transaction to commit. </param>
+        /// <returns> A task representing the asynchronous operation. </returns>
         Task CommitAsync(IDbContextTransaction transaction);
 
+        /// <summary>
+        /// Asynchronously discards all changes made in the context TContext within a given DbContext transaction.
+        /// </summary>
+        /// <param name="transaction"> Represents the ongoing transaction to rollback. </param>
+        /// <returns> A task representing the asynchronous operation. </returns>
         Task RollbackAsync(IDbContextTransaction transaction);
     }
 }

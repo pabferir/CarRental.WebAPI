@@ -41,7 +41,6 @@ namespace CarRental.SharedKernel.UnitOfWork
         {
             var result = Context.SaveChanges();
             DetachTrackedEntities();
-
             return result;
         }
 
@@ -53,18 +52,26 @@ namespace CarRental.SharedKernel.UnitOfWork
         {
             var result = await Context.SaveChangesAsync().ConfigureAwait(false);
             DetachTrackedEntities();
-
             return result;
         }
 
+        /// <summary>
+        /// Asynchronously starts a new DbContext transaction.
+        /// </summary>
+        /// <returns> A task that contains a IDbContextTransaction representing the transaction. </returns>
         public Task<IDbContextTransaction> BeginTransactionAsync()
         {
             return Context.Database.BeginTransactionAsync();
         }
 
+        /// <summary>
+        /// Asynchronously commits to the Database all changes made in the context TContext within a given DbContext transaction.
+        /// </summary>
+        /// <param name="transaction"> Represents the ongoing transaction to commit. </param>
+        /// <returns> A task representing the asynchronous operation. </returns>
+        /// <exception cref="NullTransactionException"> The transaction provided is not currently available. </exception>
         public async Task CommitAsync(IDbContextTransaction transaction)
         {
-            //using var transaction = Context.Database.CurrentTransaction;
             if (transaction == null)
             {
                 throw new NullTransactionException("Cannot commit database operation from null transaction.");
@@ -73,17 +80,24 @@ namespace CarRental.SharedKernel.UnitOfWork
             await transaction.CommitAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Asynchronously discards all changes made in the context TContext within a given DbContext transaction.
+        /// </summary>
+        /// <param name="transaction"> Represents the ongoing transaction to rollback. </param>
+        /// <returns> A task representing the asynchronous operation. </returns>
+        /// <exception cref="NullTransactionException"> The transaction provided is not currently available. </exception>
         public Task RollbackAsync(IDbContextTransaction transaction)
         {
-            //using var transaction = Context.Database.CurrentTransaction;
             if (transaction == null)
             {
                 throw new NullTransactionException("Cannot rollback database operation from null transaction.");
             }
-
             return transaction.RollbackAsync();
         }
 
+        /// <summary>
+        /// Sets as detached all the entities being tracked in the TContext context.
+        /// </summary>
         private void DetachTrackedEntities()
         {
             var trackedEntities = Context.ChangeTracker.Entries()
