@@ -20,48 +20,37 @@ namespace CarRental.Core.Business.Services
         }
 
         /// <summary>
-        /// Creates a new Customer
+        /// Creates a new Customer.
         /// </summary>
-        /// <param name="identityNumber"></param>
-        /// <param name="name"></param>
-        /// <param name="surname"></param>
-        /// <param name="dateOfBirth"></param>
-        /// <param name="telephoneNumber"></param>
-        /// <returns></returns>
-        /// <exception cref="CustomerNotCreatedException"></exception>
+        /// <param name="identityNumber"> The identity number of the new Customer. </param>
+        /// <param name="name"> The name of the new Customer. </param>
+        /// <param name="surname"> The surname of the new Customer. </param>
+        /// <param name="dateOfBirth"> The date of birth of the new Customer. </param>
+        /// <param name="telephoneNumber"> The telephone number of the new Customer. </param>
+        /// <returns> A CustomerDto that represents the new entity inserted in the Database. </returns>
+        /// <exception cref="CustomerNotCreatedException"> Thrown when the Insert operation can't be completed. </exception>
         public async Task<CustomerDto> CreateCustomer(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber)
         {
-            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            try
+            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);            
+            var result = await _customerRepository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber).ConfigureAwait(false);
+            if (result == null)
             {
-                var result = await _customerRepository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber, false).ConfigureAwait(false);
-                if (result == null)
-                {
-                    throw new CustomerNotCreatedException("Couldn't create the Customer in the database.");
-                }
-                await UoW.CommitAsync(transaction).ConfigureAwait(false);
-                //await transaction.CommitAsync().ConfigureAwait(false);
-                return CustomerConverter.ModelToDto(result);
+                throw new CustomerNotCreatedException("Couldn't create the Customer in the Database.");
             }
-            catch (DBConcurrencyException ex)
-            {
-                await UoW.RollbackAsync(transaction).ConfigureAwait(false);
-                //transaction.Rollback();
-                throw new DBConcurrencyException("Couldn't create the Customer in the database.", ex);
-            }
+            await UoW.CommitAsync(transaction).ConfigureAwait(false);
+            return CustomerConverter.ModelToDto(result);
         }
 
         /// <summary>
-        /// Gets all existing Customers from the database
+        /// Retrieves from the Database all the existing Customers.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="CustomerNotFoundException"></exception>
+        /// <returns> An enumerable containing a CustomerDto for each of the existing Customers. </returns>
         public async Task<IEnumerable<CustomerDto>> GetAllCustomers()
         {
             var customers = await _customerRepository.GetCustomerWhere(null).ConfigureAwait(false);
             if (!customers.Any())
             {
-                //throw new CustomerNotFoundException("Couldn't find any Customer in the database");
+                //throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
                 return new List<CustomerDto>();
             }
 
@@ -69,107 +58,82 @@ namespace CarRental.Core.Business.Services
         }
 
         /// <summary>
-        /// Gets a Customer provided its Id
+        /// Retrireves from the Database a specific Customer given its Id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// <exception cref="CustomerNotFoundException"></exception>
+        /// <param name="id"> The primary key of the Customer to retrieve. </param>
+        /// <returns> A CustomerDto that represents the Customer. </returns>
+        /// <exception cref="CustomerNotFoundException"> Thrown when there is no Customer with a primary key matching the given Id in the Database. </exception>
         public async Task<CustomerDto> GetCustomerById(Guid id)
         {
             var customer = (await _customerRepository.GetCustomerWhere(customer => customer.Id == id).ConfigureAwait(false)).FirstOrDefault();
             if (customer == null)
             {
-                throw new CustomerNotFoundException($"Couldn't find the Customer with Id {id} in the database.");
+                throw new CustomerNotFoundException($"Couldn't find the Customer with Id {id} in the Database.");
             }
 
             return CustomerConverter.ModelToDto(customer);
         }
 
         /// <summary>
-        /// Updates an exisiting Customer provided its properties
+        /// Updates the values of the properties of an already existing Customer.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="identityNumber"></param>
-        /// <param name="name"></param>
-        /// <param name="surname"></param>
-        /// <param name="dateOfBirth"></param>
-        /// <param name="telephoneNumber"></param>
-        /// <returns></returns>
-        /// <exception cref="CustomerNotUpdatedException"></exception>
+        /// <param name="id"> The primary key of the Customer to update. Cannot be changed. </param>
+        /// <param name="identityNumber"> The updated identity number of the Customer. </param>
+        /// <param name="name"> The updated name of the Customer. </param>
+        /// <param name="surname"> The updated surname of the Customer. </param>
+        /// <param name="dateOfBirth"> The updated date of birth of the Customer. </param>
+        /// <param name="telephoneNumber"> The updated telephone number of the Customer. </param>
+        /// <returns> A CustomerDto that represents the updated Customer. </returns>
+        /// <exception cref="CustomerNotUpdatedException"> Thrown when the Update operation can't be completed. </exception>
         public async Task<CustomerDto> EditCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            try
+            //await GetCustomerById(id);
+            var result = await _customerRepository.UpdateCustomer(id, identityNumber, name, surname, dateOfBirth, telephoneNumber).ConfigureAwait(false);
+            if (result == null)
             {
-                //await GetCustomerById(id);
-                var result = await _customerRepository.UpdateCustomer(id, identityNumber, name, surname, dateOfBirth, telephoneNumber, false).ConfigureAwait(false);
-                if (result == null)
-                {
-                    throw new CustomerNotUpdatedException($"Couldn't update the Customer with Id {id} in the database.");
-                }
-                await UoW.CommitAsync(transaction).ConfigureAwait(false);
-                //await transaction.CommitAsync().ConfigureAwait(false);
-                return CustomerConverter.ModelToDto(result);
+                throw new CustomerNotUpdatedException($"Couldn't update the Customer with Id {id} in the Database.");
             }
-            catch (DBConcurrencyException ex)
-            {
-                await UoW.RollbackAsync(transaction).ConfigureAwait(false);
-                //transaction.Rollback();
-                throw new DBConcurrencyException($"Couldn't update the Customer with Id {id} in the database.", ex);
-            }
-        }
+            await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
-
-        public async Task<bool> DeleteAllCustomers()
-        {
-            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            try
-            {
-                var deleted = await _customerRepository.DeleteCustomerWhere(null).ConfigureAwait(false);
-                if (!deleted)
-                {
-                    throw new CustomerNotDeletedException("Couldn't delete all customers in the database");
-                }
-                await UoW.CommitAsync(transaction).ConfigureAwait(false);
-                //await transaction.CommitAsync().ConfigureAwait(false);
-
-                return true;
-            }
-            catch (DBConcurrencyException ex)
-            {
-                await UoW.RollbackAsync(transaction).ConfigureAwait(false);
-                //transaction.Rollback();
-                throw new DBConcurrencyException("Couldn't delete all customers in the database", ex);
-            }
+            return CustomerConverter.ModelToDto(result);
         }
 
         /// <summary>
-        /// Deletes a Customer provided its Id
+        /// Deletes from the Database all the existing Customers.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns> A boolean that represents whether the operation was completed succesfully. </returns>
+        /// <exception cref="CustomerNotDeletedException"> Thrown when the Delete operations can't be completed. </exception>
+        public async Task<bool> DeleteAllCustomers()
+        {
+            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
+            var deleted = await _customerRepository.DeleteCustomerWhere(null).ConfigureAwait(false);
+            if (!deleted)
+            {
+                throw new CustomerNotDeletedException("Couldn't delete all Customers in the Database");
+            }
+            await UoW.CommitAsync(transaction).ConfigureAwait(false);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Delets from the Database a specific Customer given its Id.
+        /// </summary>
+        /// <param name="id"> The primary key of the Customer to delete. </param>
+        /// <returns> A boolean that represents whether the operation was completed succesfully. </returns>
+        /// <exception cref="CustomerNotDeletedException"> Thrown when the Delete operation can't be completed. </exception>
         public async Task<bool> DeleteCustomerById(Guid id)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            try
+            var deleted = await _customerRepository.DeleteCustomerWhere(customer => customer.Id == id).ConfigureAwait(false);
+            if (!deleted)
             {
-                var deleted = await _customerRepository.DeleteCustomerWhere(customer => customer.Id == id, false).ConfigureAwait(false);
-                if (!deleted)
-                {
-                    throw new CustomerNotDeletedException($"Couldn't delete customer with id { id } in the database");
-                }
-                await UoW.CommitAsync(transaction).ConfigureAwait(false);
-                //await transaction.CommitAsync().ConfigureAwait(false);
+                throw new CustomerNotDeletedException($"Couldn't delete Customer with Id { id } in the Database");
+            }
+            await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
-                return true;
-            }
-            catch (DBConcurrencyException ex)
-            {
-                await UoW.RollbackAsync(transaction).ConfigureAwait(false);
-                //transaction.Rollback();
-                throw new DBConcurrencyException($"Couldn't update the Customer with Id {id} in the database.", ex);
-            }
+            return true;
         }
     }
 }

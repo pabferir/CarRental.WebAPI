@@ -5,6 +5,8 @@ using CarRental.Core.Domain.Context;
 using CarRental.Core.Domain.Entities;
 using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.SharedKernel.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -19,33 +21,33 @@ namespace CarRental.Core.Test.Business.Services
         private readonly CustomerService _sut;
         private readonly Mock<IUnitOfWork<CarRentalDbContext>> _mockUoW = new();
         private readonly Mock<ICustomerRepository> _mockCustomerRepository = new();
+        private readonly Mock<IDbContextTransaction> _mockDbContextTransaction = new();
 
         public CustomerServiceTests()
         {
             _mockUoW.Setup(uoW => uoW.GetRepository<ICustomerRepository>()).Returns(_mockCustomerRepository.Object);
+            _mockUoW.Setup(uoW => uoW.BeginTransactionAsync()).ReturnsAsync(_mockDbContextTransaction.Object);
             _sut = new CustomerService(_mockUoW.Object);
         }
 
+        #region CreateCustomer
+
         [Fact]
-        public async Task CreateCustomer_ShouldReturnCustomerDto_WhenAllParametersAreValid_AndSaveChangesIsFalse_v2()
+        public async Task CreateCustomer_WhenOperationsSucceed_ShouldCommitTransactionAsync()
         {
-            Guid id = Guid.NewGuid();
-            const string? identityNumber = "12345678A";
-            const string? name = "John";
-            const string? surname = "Doe";
-            DateTime dateOfBirth = new(1999, 01, 01);
-            const string? telephoneNumber = "900900900";
-            Customer? customer = new()
-            {
-                Id = id,
-                IdentityNumber = identityNumber,
-                Name = name,
-                Surname = surname,
-                DateOfBirth = dateOfBirth,
-                TelephoneNumber = telephoneNumber
-            };
+            var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
             _mockCustomerRepository.Setup(repository => repository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber, false)).ReturnsAsync(customer);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(1);
+
+            var result = await _sut.CreateCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber);
+
+            _mockUoW.Verify(uoW => uoW.CommitAsync(_mockDbContextTransaction.Object), Times.Once());
+        }
+
+        [Fact]
+        public async Task CreateCustomer_WhenAllParametersAreValid_ShouldReturnCustomerDtoWithProvidedValuesAsync()
+        {
+            var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber, false)).ReturnsAsync(customer);
 
             var result = await _sut.CreateCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber);
 
@@ -57,81 +59,73 @@ namespace CarRental.Core.Test.Business.Services
         }
 
         [Fact]
-        public async Task GetAllCustomers_ShouldReturnListOfCustomerDto_WhenDatabaseIsNotEmpty()
+        public Task CreateCustomer_WhenCustomerRepositoryReturnsNull_ShouldThrowCustomerNotCreatedException()
         {
-            var id = Guid.NewGuid();
-            var identityNumber = "12345678A";
-            var name = "John";
-            var surname = "Doe";
-            var dateOfBirth = new DateTime(1999, 01, 01);
-            var telephoneNumber = "900900900";
-            var customer = new Customer
-            {
-                Id = id,
-                IdentityNumber = identityNumber,
-                Name = name,
-                Surname = surname,
-                DateOfBirth = dateOfBirth,
-                TelephoneNumber = telephoneNumber
-            };
-            var dbResult = new List<Customer> { customer, customer, customer };
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(null)).ReturnsAsync(dbResult);
+            InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber, false)).ReturnsAsync(() => null);
+
+            return Assert.ThrowsAsync<CustomerNotCreatedException>(() => _sut.CreateCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber));
+        }
+
+        #endregion
+   
+        #region GetAllCustomers
+
+        [Fact]
+        public async Task GetAllCustomers_WhenDatabaseIsNotEmpty_ShouldReturnListOfCustomerDtoAsync()
+        {
+            var customerOne = InitializeCustomer(out Guid id1, out string identityNumber1, out string name1, out string surname1, out DateTime dateOfBirth1, out string telephoneNumber1);
+            var customerTwo = InitializeCustomer(out Guid id2, out string identityNumber2, out string name2, out string surname2, out DateTime dateOfBirth2, out string telephoneNumber2);
+            var customerThree = InitializeCustomer(out Guid id3, out string identityNumber3, out string name3, out string surname3, out DateTime dateOfBirth3, out string telephoneNumber3);
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(null)).ReturnsAsync(new List<Customer> { customerOne, customerTwo, customerThree });
 
             var result = await _sut.GetAllCustomers();
 
+            Assert.IsAssignableFrom<IEnumerable<CustomerDto>>(result);
+            Assert.Equal(3, result.Count());
             Assert.IsType<CustomerDto>(result.ElementAt(0));
             Assert.IsType<CustomerDto>(result.ElementAt(1));
             Assert.IsType<CustomerDto>(result.ElementAt(2));
-            Assert.Equal(3, result.Count());
-            Assert.Equal(id, result.ElementAt(0).Id);
-            Assert.Equal(id, result.ElementAt(1).Id);
-            Assert.Equal(id, result.ElementAt(2).Id);
-            Assert.Equal(identityNumber, result.ElementAt(0).IdentityNumber);
-            Assert.Equal(identityNumber, result.ElementAt(1).IdentityNumber);
-            Assert.Equal(identityNumber, result.ElementAt(2).IdentityNumber);
-            Assert.Equal(name, result.ElementAt(0).Name);
-            Assert.Equal(name, result.ElementAt(1).Name);
-            Assert.Equal(name, result.ElementAt(2).Name);
-            Assert.Equal(surname, result.ElementAt(0).Surname);
-            Assert.Equal(surname, result.ElementAt(1).Surname);
-            Assert.Equal(surname, result.ElementAt(2).Surname);
-            Assert.Equal(dateOfBirth, result.ElementAt(0).DateOfBirth);
-            Assert.Equal(dateOfBirth, result.ElementAt(1).DateOfBirth);
-            Assert.Equal(dateOfBirth, result.ElementAt(2).DateOfBirth);
-            Assert.Equal(telephoneNumber, result.ElementAt(0).TelephoneNumber);
-            Assert.Equal(telephoneNumber, result.ElementAt(1).TelephoneNumber);
-            Assert.Equal(telephoneNumber, result.ElementAt(2).TelephoneNumber);
+            Assert.Equal(id1, result.ElementAt(0).Id);
+            Assert.Equal(id2, result.ElementAt(1).Id);
+            Assert.Equal(id3, result.ElementAt(2).Id);
+            Assert.Equal(identityNumber1, result.ElementAt(0).IdentityNumber);
+            Assert.Equal(identityNumber2, result.ElementAt(1).IdentityNumber);
+            Assert.Equal(identityNumber3, result.ElementAt(2).IdentityNumber);
+            Assert.Equal(name1, result.ElementAt(0).Name);
+            Assert.Equal(name2, result.ElementAt(1).Name);
+            Assert.Equal(name3, result.ElementAt(2).Name);
+            Assert.Equal(surname1, result.ElementAt(0).Surname);
+            Assert.Equal(surname2, result.ElementAt(1).Surname);
+            Assert.Equal(surname3, result.ElementAt(2).Surname);
+            Assert.Equal(dateOfBirth1, result.ElementAt(0).DateOfBirth);
+            Assert.Equal(dateOfBirth2, result.ElementAt(1).DateOfBirth);
+            Assert.Equal(dateOfBirth3, result.ElementAt(2).DateOfBirth);
+            Assert.Equal(telephoneNumber1, result.ElementAt(0).TelephoneNumber);
+            Assert.Equal(telephoneNumber2, result.ElementAt(1).TelephoneNumber);
+            Assert.Equal(telephoneNumber3, result.ElementAt(2).TelephoneNumber);
         }
 
         [Fact]
-        public void GetAllCUstomers_ShouldThrowCustomerNotFoundException_WhenDatabaseIsEmpty()
+        public async Task GetAllCustomers_WhenDatabaseIsEmpty_ShouldReturnEmptyListOfCustomerDtoAsync()
         {
-            var dbResult = new List<Customer>();
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(null)).ReturnsAsync(dbResult);
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(null)).ReturnsAsync(new List<Customer>());
 
-            Assert.ThrowsAsync<CustomerNotFoundException>(async () => await _sut.GetAllCustomers());
+            var result = await _sut.GetAllCustomers();
+
+            Assert.IsType<List<CustomerDto>>(result);
+            Assert.False(result.Any());
         }
 
+        #endregion
+
+        #region GetCustomerById
+
         [Fact]
-        public async Task GetCustomerById_ShouldReturnCustomerDto_WhenCustomerExists()
+        public async Task GetCustomerById_WhenCustomerExists_ShouldReturnCustomerDtoAsync()
         {
-            var id = Guid.NewGuid();
-            var identityNumber = "12345678A";
-            var name = "John";
-            var surname = "Doe";
-            var dateOfBirth = new DateTime(1999, 01, 01);
-            var telephoneNumber = "900900900";
-            var customer = new Customer
-            {
-                Id = id,
-                IdentityNumber = identityNumber,
-                Name = name,
-                Surname = surname,
-                DateOfBirth = dateOfBirth,
-                TelephoneNumber = telephoneNumber
-            };
-            var dbResult = new List<Customer> { customer };
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(dbResult);
+            var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(new List<Customer> { customer });
 
             var result = await _sut.GetCustomerById(id);
 
@@ -145,125 +139,173 @@ namespace CarRental.Core.Test.Business.Services
         }
 
         [Fact]
-        public void GetCustomerById_ShouldThrowCustomerNotFoundException_WhenCustomerDoesNotExist()
+        public Task GetCustomerById_WhenCustomerDoesNotExist_ShouldThrowCustomerNotFoundException()
         {
             var id = Guid.NewGuid();
-            var dbResult = new List<Customer>();
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(dbResult);
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(new List<Customer>());
 
-            Assert.ThrowsAsync<CustomerNotFoundException>(async () => await _sut.GetCustomerById(id));
+            return Assert.ThrowsAsync<CustomerNotFoundException>(async () => await _sut.GetCustomerById(id));
+        }
+
+        #endregion
+
+        #region EditCustomer
+
+        [Fact]
+        public async Task EditCustomer_WhenOperationsSucceed_ShouldCommitTransactionAsync()
+        {
+            var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            var updatedCustomer = InitializeCustomer(out Guid updatedId, out string updatedIdentityNumber, out string updatedName, out string updatedSurname, out DateTime updatedDateOfBirth, out string updatedTelephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.UpdateCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber, false)).ReturnsAsync(updatedCustomer);
+
+            var result = await _sut.EditCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber);
+
+            _mockUoW.Verify(uoW => uoW.CommitAsync(_mockDbContextTransaction.Object), Times.Once());
         }
 
         [Fact]
-        public async Task EditCustomer_ShouldReturnUpdatedCustomerDto_WhenCustomerExists_AndSaveChangesIsFalse()
+        public async Task EditCustomer_WhenCustomerExists_ShouldReturnUpdatedCustomerDtoAsync()
         {
-            var id = Guid.Empty;
-            var identityNumber = "12345678A";
-            var name = "John";
-            var surname = "Doe";
-            var dateOfBirth = new DateTime(1999, 01, 01);
-            var telephoneNumber = "900900900";
-            var customer = new Customer
+            var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            var updatedCustomer = InitializeCustomer(out Guid updatedId, out string updatedIdentityNumber, out string updatedName, out string updatedSurname, out DateTime updatedDateOfBirth, out string updatedTelephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.UpdateCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber, false)).ReturnsAsync(updatedCustomer);
+
+            var result = await _sut.EditCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber);
+
+            Assert.IsType<CustomerDto>(result);
+            //Assert.Equal(id, result.Id);
+            Assert.Equal(updatedIdentityNumber, result.IdentityNumber);
+            Assert.Equal(updatedName, result.Name);
+            Assert.Equal(updatedSurname, result.Surname);
+            Assert.Equal(updatedDateOfBirth, result.DateOfBirth);
+            Assert.Equal(updatedTelephoneNumber, result.TelephoneNumber);
+        }
+
+        [Fact]
+        public Task EditCustomer_WhenRepositoryReturnsNull_ShouldThrowCustomerNotUpdatedException()
+        {
+            InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(() => null);
+
+            return Assert.ThrowsAsync<CustomerNotUpdatedException>(async () => await _sut.EditCustomer(id, identityNumber, name, surname, dateOfBirth, telephoneNumber));
+        }
+
+        #endregion
+
+        #region DeleteAllCustomers
+
+        [Fact]
+        public async Task DeleteAllCustomers_WhenOperationsSucceed_ShouldCommitTransactionAsync()
+        {
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(null, false)).ReturnsAsync(true);
+
+            var result = await _sut.DeleteAllCustomers();
+
+            _mockUoW.Verify(uoW => uoW.CommitAsync(_mockDbContextTransaction.Object), Times.Once());
+        }
+
+        [Fact]
+        public async Task DeleteAllCustomers_WhenDatabaseIsNotEmpty_ShouldReturnTrueAsync()
+        {
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(null, false)).ReturnsAsync(true);
+
+            var result = await _sut.DeleteAllCustomers();
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public Task DeleteAllCustomers_WhenRepositoryReturnsFalse_ShouldThrowCustomerNotDeletedException()
+        {
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(null, false)).ReturnsAsync(false);
+
+            return Assert.ThrowsAsync<CustomerNotDeletedException>(async () => await _sut.DeleteAllCustomers());
+        }
+
+        #endregion
+
+        #region DeleteCustomerById
+
+        [Fact]
+        public async Task DeleteCustomerById_WhenOperationsSucceed_ShouldCommitTransactionAsync()
+        {
+            var id = Guid.NewGuid();
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(customer => customer.Id == id, false)).ReturnsAsync(true);
+
+            var result = await _sut.DeleteCustomerById(id);
+
+            _mockUoW.Verify(uoW => uoW.CommitAsync(_mockDbContextTransaction.Object), Times.Once());
+        }
+
+        [Fact]
+        public async Task DeleteCustomerById_WhenCustomerExists_ShouldReturnTrueAsync()
+        {
+            var id = Guid.NewGuid();
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(customer => customer.Id == id, false)).ReturnsAsync(true);
+
+            var result = await _sut.DeleteCustomerById(id);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public Task DeleteCustomerById_WhenCustomerDoesNotExist_ShouldThrowCustomerNotDeletedException()
+        {
+            var id = Guid.NewGuid();
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(customer => customer.Id == id, false)).ReturnsAsync(false);
+
+            return Assert.ThrowsAsync<CustomerNotDeletedException>(async () => await _sut.DeleteCustomerById(id));
+        }
+
+        #endregion
+
+        private static Customer InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber)
+        {
+            id = Guid.NewGuid();
+            identityNumber = GetRandomIdentityNumber();
+            name = GetRandomCustomerName();
+            surname = GetRandomCustomerSurname();
+            dateOfBirth = GetRandomCustomerDateOfBirth();
+            telephoneNumber = GetRandomCustomerTelephoneNumber();
+            return new Customer
             {
+                Id = id,
                 IdentityNumber = identityNumber,
                 Name = name,
                 Surname = surname,
                 DateOfBirth = dateOfBirth,
                 TelephoneNumber = telephoneNumber
             };
-            var dbResult = new List<Customer> { customer };
-            var updatedIdentityNumber = "87654321B";
-            var updatedName = "Jane";
-            var updatedSurname = "Roe";
-            var updatedDateOfBirth = new DateTime(2000, 01, 01);
-            var updatedTelephoneNumber = "099099099";
-            var updatedCustomer = new Customer
-            {
-                IdentityNumber = updatedIdentityNumber,
-                Name = updatedName,
-                Surname = updatedSurname,
-                DateOfBirth = updatedDateOfBirth,
-                TelephoneNumber = updatedTelephoneNumber
-            };
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(dbResult);
-            _mockCustomerRepository.Setup(repository => repository.UpdateCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber, false)).ReturnsAsync(updatedCustomer);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(1);
-
-            var result = await _sut.EditCustomer(id, updatedIdentityNumber, updatedName, updatedSurname, updatedDateOfBirth, updatedTelephoneNumber);
-
-            Assert.IsType<CustomerDto>(result);
-            Assert.Equal(id, result.Id);
-            Assert.Equal(updatedIdentityNumber, result.IdentityNumber);
-            Assert.Equal(updatedName, result.Name);
-            Assert.Equal(updatedSurname, result.Surname);
-            Assert.Equal(updatedDateOfBirth, result.DateOfBirth);
-            Assert.Equal(updatedTelephoneNumber, result.TelephoneNumber);
-            Assert.NotEqual(identityNumber, result.IdentityNumber);
-            Assert.NotEqual(name, result.Name);
-            Assert.NotEqual(surname, result.Surname);
-            Assert.NotEqual(dateOfBirth, result.DateOfBirth);
-            Assert.NotEqual(telephoneNumber, result.TelephoneNumber);
         }
 
-        [Fact]
-        public void EditCustomer_ShouldThrowCustomerNotFoundException_WhenCustomerDoesNotExist_AndSaveChangesIsFalse()
+        private static string GetRandomIdentityNumber()
         {
-            var id = Guid.NewGuid();
-            var identityNumber = "12345678A";
-            var name = "John";
-            var surname = "Doe";
-            var dateOfBirth = new DateTime(1999, 01, 01);
-            var telephoneNumber = "900900900";
-            var dbResult = new List<Customer>();
-            _mockCustomerRepository.Setup(repository => repository.GetCustomerWhere(customer => customer.Id == id)).ReturnsAsync(dbResult);
-
-            Assert.ThrowsAsync<CustomerNotFoundException>(async () => await _sut.EditCustomer(id, identityNumber, name, surname, dateOfBirth, telephoneNumber));
+            var identityNumbers = new List<string> { "12345678A", "87654321B", "18723654C", "78563412D" };
+            return identityNumbers[new Random().Next(identityNumbers.Count)];
         }
 
-        [Fact]
-        public async Task DeleteAllCustomers_ShouldReturnTrue_WhenDatabaseIsNotEmpty_AndSaveChangesIsFalse()
+        private static string GetRandomCustomerName()
         {
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(null, false)).ReturnsAsync(false);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(1);
-
-            var result = await _sut.DeleteAllCustomers();
-
-            Assert.True(result);
+            var names = new List<string> { "John", "Paul", "George", "Ringo" };
+            return names[new Random().Next(names.Count)];
         }
 
-        [Fact]
-        public async Task DeleteAllCustomers_ShouldReturnFalse_WhenDatabaseIsEmpty_AndSaveChangesIsFalse()
+        private static string GetRandomCustomerSurname()
         {
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(null, false)).ReturnsAsync(false);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(0);
-
-            var result = await _sut.DeleteAllCustomers();
-
-            Assert.False(result);
+            var surnames = new List<string> { "Lennon", "McCartney", "Harrison", "Starr" };
+            return surnames[new Random().Next(surnames.Count)];
         }
 
-        [Fact]
-        public async Task DeleteCustomerById_ShouldReturnTrue_WhenCustomerExists_AndSaveChangesIsFalse()
+        private static DateTime GetRandomCustomerDateOfBirth()
         {
-            var id = Guid.NewGuid();
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(customer => customer.Id == id, false)).ReturnsAsync(false);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(1);
-
-            var result = await _sut.DeleteCustomerById(id);
-
-            Assert.True(result);
+            var datesOfBirth = new List<DateTime> { new(1989, 01, 31), new(1999, 12, 01), new(2009, 04, 12), new(2019, 08, 22) };
+            return datesOfBirth[new Random().Next(datesOfBirth.Count)];
         }
 
-        [Fact]
-        public async Task DeleteCustomerById_ShouldReturnFalse_WhenCustomerDoesNotExist_AndSaveChangesIsFalse()
+        private static string GetRandomCustomerTelephoneNumber()
         {
-            var id = Guid.NewGuid();
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerWhere(customer => customer.Id == id, false)).ReturnsAsync(false);
-            _mockUoW.Setup(uoW => uoW.SaveChangesAsync()).ReturnsAsync(0);
-
-            var result = await _sut.DeleteCustomerById(id);
-
-            Assert.False(result);
+            var telephoneNumbers = new List<string> { "+34 666 33 39 99", "+44 7700 900800", "+1 202-191-2132", "+81 50-801-3742" };
+            return telephoneNumbers[new Random().Next(telephoneNumbers.Count)];
         }
     }
 }
