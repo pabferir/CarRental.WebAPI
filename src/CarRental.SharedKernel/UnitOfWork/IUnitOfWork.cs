@@ -13,18 +13,6 @@ namespace CarRental.SharedKernel.UnitOfWork
         TRepository GetRepository<TRepository>() where TRepository : class;
 
         /// <summary>
-        /// Saves all changes made in the context TContext to the Database.
-        /// </summary>
-        /// <returns> The number of state entities written to database. </returns>
-        int SaveChanges();
-
-        /// <summary>
-        /// Asynchronously saves all changes made in the context TContext to the Database.
-        /// </summary>
-        /// <returns> The number of state entities written to database. </returns>
-        Task<int> SaveChangesAsync();
-
-        /// <summary>
         /// Asynchronously starts a new DbContext transaction.
         /// </summary>
         /// <returns> A task that contains a IDbContextTransaction representing the transaction. </returns>
@@ -36,12 +24,5 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <param name="transaction"> Represents the ongoing transaction to commit. </param>
         /// <returns> A task representing the asynchronous operation. </returns>
         Task CommitAsync(IDbContextTransaction transaction);
-
-        /// <summary>
-        /// Asynchronously discards all changes made in the context TContext within a given DbContext transaction.
-        /// </summary>
-        /// <param name="transaction"> Represents the ongoing transaction to rollback. </param>
-        /// <returns> A task representing the asynchronous operation. </returns>
-        Task RollbackAsync(IDbContextTransaction transaction);
     }
 }
