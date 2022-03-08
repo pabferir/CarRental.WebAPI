@@ -1,6 +1,6 @@
 ﻿namespace CarRental.SharedKernel.Exceptions
 {
-    internal class RepositoryNotFoundException : Exception
+    public class RepositoryNotFoundException : Exception
     {
         public RepositoryNotFoundException() : base()
         {

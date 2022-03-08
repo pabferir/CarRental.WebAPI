@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CarRental.SharedKernel.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace CarRental.SharedKernel.Repository
@@ -12,7 +13,7 @@ namespace CarRental.SharedKernel.Repository
             DbContext = context;
         }
 
-        public async Task<TEntity> Insert(TEntity entity, bool saveChanges = true)
+        public async Task<TEntity> Insert(TEntity entity, bool saveChanges = false)
         {
             var result = await DbContext.Set<TEntity>().AddAsync(entity).ConfigureAwait(false);
             result.State = EntityState.Added;
@@ -34,7 +35,7 @@ namespace CarRental.SharedKernel.Repository
             return await query.ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<TEntity> Update(TEntity entity, bool saveChanges = true)
+        public async Task<TEntity> Update(TEntity entity, bool saveChanges = false)
         {
             var result = DbContext.Set<TEntity>().Attach(entity);
             DbContext.Entry(entity).State = EntityState.Modified;
@@ -46,28 +47,38 @@ namespace CarRental.SharedKernel.Repository
             return result.Entity;
         }
 
-        public async Task<bool> Delete(TEntity entity, bool saveChanges = true)
+        public async Task<bool> Delete(TEntity entity, bool saveChanges = false)
         {
             var result = DbContext.Set<TEntity>().Remove(entity);
+            if (result == null)
+            {
+                throw new DatabaseOperationNotCompletedException($"Couldn't delete the entity { entity } in the Database.");
+            }
             result.State = EntityState.Deleted;
-            var deleted = 0;
             if (saveChanges)
             {
-                deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                var deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
                 result.State = EntityState.Detached;
+                return deleted > 0;
             }
-            return deleted > 0;
+            return true;
         }
 
-        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = true)
+        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = false)
         {
-            var result = new List<bool>();
             var entities = await GetWhere(filter).ConfigureAwait(false);
+            if (!entities.Any())
+            {
+                return false;
+            }
             foreach(var entity in entities)
             {
-                result.Add(await Delete(entity, saveChanges).ConfigureAwait(false));
+                if (!await Delete(entity, saveChanges).ConfigureAwait(false))
+                {
+                    throw new DatabaseOperationNotCompletedException($"Couldn't delete the entity { entity } in the Database.");
+                }
             }
-            return result.All(r => r == true);
+            return true;
         }
     }
 }
