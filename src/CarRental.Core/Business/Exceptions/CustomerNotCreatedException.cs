@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CarRental.Core.Business.Exceptions
+﻿namespace CarRental.Core.Business.Exceptions
 {
     public class CustomerNotCreatedException : Exception
     {
@@ -12,11 +6,11 @@ namespace CarRental.Core.Business.Exceptions
         {
         }
 
-        public CustomerNotCreatedException(string? message) : base(message)
+        public CustomerNotCreatedException(string message) : base(message)
         {
         }
 
-        public CustomerNotCreatedException(string? message, Exception? innerException) : base(message, innerException)
+        public CustomerNotCreatedException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

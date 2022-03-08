@@ -25,7 +25,7 @@ namespace CarRental.SharedKernel.Repository
             return result.Entity;
         }
 
-        public async Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>> filter = null)
         {
             IQueryable<TEntity> query = DbContext.Set<TEntity>().AsNoTracking();
             if (filter != null)
@@ -64,7 +64,7 @@ namespace CarRental.SharedKernel.Repository
             return true;
         }
 
-        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>>? filter = null, bool saveChanges = false)
+        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>> filter = null, bool saveChanges = false)
         {
             var entities = await GetWhere(filter).ConfigureAwait(false);
             if (!entities.Any())

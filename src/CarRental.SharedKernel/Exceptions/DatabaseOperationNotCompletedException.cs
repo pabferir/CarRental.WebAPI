@@ -6,11 +6,11 @@
         {
         }
 
-        public DatabaseOperationNotCompletedException(string? message) : base(message)
+        public DatabaseOperationNotCompletedException(string message) : base(message)
         {
         }
 
-        public DatabaseOperationNotCompletedException(string? message, Exception? innerException) : base(message, innerException)
+        public DatabaseOperationNotCompletedException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }
