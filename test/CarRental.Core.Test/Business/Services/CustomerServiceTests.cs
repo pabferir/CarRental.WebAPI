@@ -5,7 +5,6 @@ using CarRental.Core.Domain.Context;
 using CarRental.Core.Domain.Entities;
 using CarRental.Core.Domain.RepositoryInterfaces;
 using CarRental.SharedKernel.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using System;

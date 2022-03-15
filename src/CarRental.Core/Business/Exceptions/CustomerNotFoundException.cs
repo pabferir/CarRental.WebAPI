@@ -6,11 +6,11 @@
         {
         }
 
-        public CustomerNotFoundException(string? message) : base(message)
+        public CustomerNotFoundException(string message) : base(message)
         {
         }
 
-        public CustomerNotFoundException(string? message, Exception? innerException) : base(message, innerException)
+        public CustomerNotFoundException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

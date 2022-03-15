@@ -19,7 +19,7 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Insert(customer, saveChanges);
         }
 
-        public Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>>? filter = null)
+        public Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>> filter = null)
         {
             return GetWhere(filter);
         }
@@ -30,7 +30,7 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Update(updatedCustomer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>>? filter = null, bool saveChanges = false)
+        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>> filter = null, bool saveChanges = false)
         {
             return DeleteWhere(filter, saveChanges);
         }
