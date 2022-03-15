@@ -7,14 +7,14 @@ namespace CarRental.Core.Business.Dtos
         [Required]
         public Guid Id { get; set; }
         [Required]
-        public string IdentityNumber { get; set; } = null!;
+        public string IdentityNumber { get; set; }
         [Required]
-        public string Name { get; set; } = null!;
+        public string Name { get; set; }
         [Required]
-        public string Surname { get; set; } = null!;
+        public string Surname { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]
-        public string TelephoneNumber { get; set; } = null!;
+        public string TelephoneNumber { get; set; }
     }
 }
