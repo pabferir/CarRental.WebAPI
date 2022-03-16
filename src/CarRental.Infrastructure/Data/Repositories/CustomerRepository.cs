@@ -19,9 +19,14 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Insert(customer, saveChanges);
         }
 
-        public Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>> filter = null)
+        public Task<IEnumerable<Customer>> GetAllCustomers()
         {
-            return GetWhere(filter);
+            return GetCustomerWhere(null);
+        }
+
+        public async Task<Customer> GetCustomerById(Guid id)
+        {
+            return (await GetCustomerWhere(customer => customer.Id == id).ConfigureAwait(false)).FirstOrDefault();
         }
 
         public Task<Customer> UpdateCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber, bool saveChanges = false)
@@ -30,7 +35,22 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Update(updatedCustomer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>> filter = null, bool saveChanges = false)
+        public Task<bool> DeleteAllCustomers()
+        {
+            return DeleteCustomerWhere(null);
+        }
+
+        public Task<bool> DeleteCustomerById(Guid id)
+        {
+            return DeleteCustomerWhere(customer => customer.Id == id);
+        }
+
+        private Task<IEnumerable<Customer>> GetCustomerWhere(Expression<Func<Customer, bool>> filter = null)
+        {
+            return GetWhere(filter);
+        }
+
+        private Task<bool> DeleteCustomerWhere(Expression<Func<Customer, bool>> filter = null, bool saveChanges = false)
         {
             return DeleteWhere(filter, saveChanges);
         }
