@@ -47,7 +47,7 @@ namespace CarRental.Core.Business.Services
         /// <returns> An enumerable containing a CustomerDto for each of the existing Customers. </returns>
         public async Task<IEnumerable<CustomerDto>> GetAllCustomers()
         {
-            var customers = await _customerRepository.GetAllCustomers().ConfigureAwait(false);
+            var customers = await _customerRepository.GetCustomersByFilter().ConfigureAwait(false);
             if (!customers.Any())
             {
                 //throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
@@ -65,7 +65,7 @@ namespace CarRental.Core.Business.Services
         /// <exception cref="CustomerNotFoundException"> Thrown when there is no Customer with a primary key matching the given Id in the Database. </exception>
         public async Task<CustomerDto> GetCustomerById(Guid id)
         {
-            var customer = await _customerRepository.GetCustomerById(id).ConfigureAwait(false);
+            var customer = (await _customerRepository.GetCustomersByFilter(id: id).ConfigureAwait(false)).FirstOrDefault();
             if (customer == null)
             {
                 throw new CustomerNotFoundException($"Couldn't find the Customer with Id {id} in the Database.");
@@ -107,7 +107,7 @@ namespace CarRental.Core.Business.Services
         public async Task<bool> DeleteAllCustomers()
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var deleted = await _customerRepository.DeleteAllCustomers().ConfigureAwait(false);
+            var deleted = await _customerRepository.DeleteCustomersByFilter().ConfigureAwait(false);
             if (!deleted)
             {
                 throw new CustomerNotDeletedException("Couldn't delete all Customers in the Database");
@@ -126,7 +126,7 @@ namespace CarRental.Core.Business.Services
         public async Task<bool> DeleteCustomerById(Guid id)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var deleted = await _customerRepository.DeleteCustomerById(id).ConfigureAwait(false);
+            var deleted = await _customerRepository.DeleteCustomersByFilter(id: id).ConfigureAwait(false);
             if (!deleted)
             {
                 throw new CustomerNotDeletedException($"Couldn't delete Customer with Id { id } in the Database");
