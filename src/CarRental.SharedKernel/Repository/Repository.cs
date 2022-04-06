@@ -25,12 +25,12 @@ namespace CarRental.SharedKernel.Repository
             return result.Entity;
         }
 
-        public async Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>> filter = null)
+        public async Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>> predicate = null)
         {
             IQueryable<TEntity> query = DbContext.Set<TEntity>().AsNoTracking();
-            if (filter != null)
+            if (predicate != null)
             {
-                query = query.Where(filter);
+                query = query.Where(predicate);
             }
             return await query.ToListAsync().ConfigureAwait(false);
         }
@@ -47,7 +47,7 @@ namespace CarRental.SharedKernel.Repository
             return result.Entity;
         }
 
-        public async Task<bool> Delete(TEntity entity, bool saveChanges = false)
+        public async Task<TEntity> Delete(TEntity entity, bool saveChanges = false)
         {
             var result = DbContext.Set<TEntity>().Remove(entity);
             if (result == null)
@@ -57,28 +57,25 @@ namespace CarRental.SharedKernel.Repository
             result.State = EntityState.Deleted;
             if (saveChanges)
             {
-                var deleted = await DbContext.SaveChangesAsync().ConfigureAwait(false);
+                await DbContext.SaveChangesAsync().ConfigureAwait(false);
                 result.State = EntityState.Detached;
-                return deleted > 0;
             }
-            return true;
+            return result.Entity;
         }
 
-        public async Task<bool> DeleteWhere(Expression<Func<TEntity, bool>> filter = null, bool saveChanges = false)
+        public async Task<IEnumerable<TEntity>> DeleteWhere(Expression<Func<TEntity, bool>> predicate = null, bool saveChanges = false)
         {
-            var entities = await GetWhere(filter).ConfigureAwait(false);
+            var result = new List<TEntity>();
+            var entities = await GetWhere(predicate).ConfigureAwait(false);
             if (!entities.Any())
             {
-                return false;
+                return result;
             }
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
-                if (!await Delete(entity, saveChanges).ConfigureAwait(false))
-                {
-                    throw new DatabaseOperationNotCompletedException($"Couldn't delete the entity { entity } in the Database.");
-                }
+                result.Add(await Delete(entity, saveChanges).ConfigureAwait(false));
             }
-            return true;
+            return result;
         }
     }
 }

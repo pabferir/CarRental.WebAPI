@@ -8,7 +8,7 @@ namespace CarRental.Core.Domain.ServiceInterfaces
         Task<IEnumerable<CustomerDto>> GetAllCustomers();
         Task<CustomerDto> GetCustomerById(Guid id);
         Task<CustomerDto> EditCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber);
-        Task<bool> DeleteAllCustomers();
-        Task<bool> DeleteCustomerById(Guid id);
+        Task<IEnumerable<CustomerDto>> DeleteAllCustomers();
+        Task<CustomerDto> DeleteCustomerById(Guid id);
     }
 }

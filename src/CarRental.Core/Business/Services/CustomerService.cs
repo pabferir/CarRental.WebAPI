@@ -47,7 +47,7 @@ namespace CarRental.Core.Business.Services
         /// <returns> An enumerable containing a CustomerDto for each of the existing Customers. </returns>
         public async Task<IEnumerable<CustomerDto>> GetAllCustomers()
         {
-            var customers = await _customerRepository.GetCustomerWhere(null).ConfigureAwait(false);
+            var customers = await _customerRepository.GetCustomersBy().ConfigureAwait(false);
             if (!customers.Any())
             {
                 //throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
@@ -65,7 +65,7 @@ namespace CarRental.Core.Business.Services
         /// <exception cref="CustomerNotFoundException"> Thrown when there is no Customer with a primary key matching the given Id in the Database. </exception>
         public async Task<CustomerDto> GetCustomerById(Guid id)
         {
-            var customer = (await _customerRepository.GetCustomerWhere(customer => customer.Id == id).ConfigureAwait(false)).FirstOrDefault();
+            var customer = (await _customerRepository.GetCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
             if (customer == null)
             {
                 throw new CustomerNotFoundException($"Couldn't find the Customer with Id {id} in the Database.");
@@ -102,38 +102,38 @@ namespace CarRental.Core.Business.Services
         /// <summary>
         /// Deletes from the Database all the existing Customers.
         /// </summary>
-        /// <returns> A boolean that represents whether the operation was completed succesfully. </returns>
+        /// <returns> An enumerable containing a CustomerDto for each of the deleted Customers. </returns>
         /// <exception cref="CustomerNotDeletedException"> Thrown when the Delete operations can't be completed. </exception>
-        public async Task<bool> DeleteAllCustomers()
+        public async Task<IEnumerable<CustomerDto>> DeleteAllCustomers()
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var deleted = await _customerRepository.DeleteCustomerWhere(null).ConfigureAwait(false);
-            if (!deleted)
+            var customers = await _customerRepository.DeleteCustomersBy().ConfigureAwait(false);
+            if (!customers.Any())
             {
                 throw new CustomerNotDeletedException("Couldn't delete all Customers in the Database");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
-            return true;
+            return customers.Select(CustomerConverter.ModelToDto);
         }
 
         /// <summary>
         /// Delets from the Database a specific Customer given its Id.
         /// </summary>
         /// <param name="id"> The primary key of the Customer to delete. </param>
-        /// <returns> A boolean that represents whether the operation was completed succesfully. </returns>
+        /// <returns> A CustomerDto that represents the deleted Customer. </returns>
         /// <exception cref="CustomerNotDeletedException"> Thrown when the Delete operation can't be completed. </exception>
-        public async Task<bool> DeleteCustomerById(Guid id)
+        public async Task<CustomerDto> DeleteCustomerById(Guid id)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var deleted = await _customerRepository.DeleteCustomerWhere(customer => customer.Id == id).ConfigureAwait(false);
-            if (!deleted)
+            var customer = (await _customerRepository.DeleteCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
+            if (customer == null)
             {
                 throw new CustomerNotDeletedException($"Couldn't delete Customer with Id { id } in the Database");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
-            return true;
+            return CustomerConverter.ModelToDto(customer);
         }
     }
 }
