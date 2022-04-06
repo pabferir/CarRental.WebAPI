@@ -20,7 +20,7 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Insert(customer, saveChanges);
         }
 
-        public Task<IEnumerable<Customer>> GetCustomersByFilter(Guid id = default, string identityNumber = default, string name = default, string surname = default, DateTime dateOfBirth = default, string telephoneNumber = default)
+        public Task<IEnumerable<Customer>> GetCustomersBy(Guid id = default, string identityNumber = default, string name = default, string surname = default, DateTime dateOfBirth = default, string telephoneNumber = default)
         {
             var filter = new CustomerFilter()
             {
@@ -67,7 +67,7 @@ namespace CarRental.Infrastructure.Data.Repositories
             return Update(updatedCustomer, saveChanges);
         }
 
-        public Task<bool> DeleteCustomersByFilter(Guid id = default, string identityNumber = default, string name = default, string surname = default, DateTime dateOfBirth = default, string telephoneNumber = default, bool saveChanges = false)
+        public Task<IEnumerable<Customer>> DeleteCustomersBy(Guid id = default, string identityNumber = default, string name = default, string surname = default, DateTime dateOfBirth = default, string telephoneNumber = default, bool saveChanges = false)
         {
             var filter = new CustomerFilter()
             {
