@@ -19,10 +19,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CarRental.Core\CarRental.Core.csproj" />
+    <ProjectReference Include="..\CarRental.SharedKernel\CarRental.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

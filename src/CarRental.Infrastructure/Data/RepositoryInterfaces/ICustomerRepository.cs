@@ -1,7 +1,7 @@
 ﻿using CarRental.Core.Domain.Entities;
 using CarRental.SharedKernel.Repository;
 
-namespace CarRental.Core.Domain.RepositoryInterfaces
+namespace CarRental.Infrastructure.Data.RepositoryInterfaces
 {
     public interface ICustomerRepository : IRepository<Customer>
     {

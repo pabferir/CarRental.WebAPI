@@ -1,4 +1,4 @@
-﻿using CarRental.SharedKernel.Exceptions;
+﻿using CarRental.SharedKernel.UnitOfWork.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;

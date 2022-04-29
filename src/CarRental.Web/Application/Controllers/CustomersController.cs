@@ -1,5 +1,5 @@
-﻿using CarRental.Core.Business.Dtos;
-using CarRental.Core.Domain.ServiceInterfaces;
+﻿using CarRental.Infrastructure.Business.Dtos;
+using CarRental.Infrastructure.Business.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.Web.Application.Controllers

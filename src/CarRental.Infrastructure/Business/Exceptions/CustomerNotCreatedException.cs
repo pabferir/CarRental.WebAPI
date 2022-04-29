@@ -1,4 +1,4 @@
-﻿namespace CarRental.Core.Business.Exceptions
+﻿namespace CarRental.Infrastructure.Business.Exceptions
 {
     public class CustomerNotCreatedException : Exception
     {

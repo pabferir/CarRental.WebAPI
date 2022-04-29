@@ -1,7 +1,7 @@
-﻿using CarRental.Core.Business.Dtos;
-using CarRental.Core.Domain.Entities;
+﻿using CarRental.Core.Domain.Entities;
+using CarRental.Infrastructure.Business.Dtos;
 
-namespace CarRental.Core.Business.Converters
+namespace CarRental.Infrastructure.Business.Converters
 {
     public static class CustomerConverter
     {

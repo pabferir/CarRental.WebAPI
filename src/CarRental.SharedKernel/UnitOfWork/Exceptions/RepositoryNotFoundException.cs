@@ -1,4 +1,4 @@
-﻿namespace CarRental.SharedKernel.Exceptions
+﻿namespace CarRental.SharedKernel.UnitOfWork.Exceptions
 {
     public class RepositoryNotFoundException : Exception
     {

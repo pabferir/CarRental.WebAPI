@@ -1,4 +1,4 @@
-﻿using CarRental.SharedKernel.Exceptions;
+﻿using CarRental.SharedKernel.Repository.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
