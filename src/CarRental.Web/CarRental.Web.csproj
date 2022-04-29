@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CarRental.Core\CarRental.Core.csproj" />
     <ProjectReference Include="..\CarRental.Infrastructure\CarRental.Infrastructure.csproj" />
   </ItemGroup>
 
