@@ -1,9 +1,9 @@
-﻿using CarRental.Core.Business.Dtos;
-using CarRental.Core.Business.Exceptions;
-using CarRental.Core.Business.Services;
-using CarRental.Core.Domain.Context;
-using CarRental.Core.Domain.Entities;
-using CarRental.Core.Domain.RepositoryInterfaces;
+﻿using CarRental.Core.Domain.Entities;
+using CarRental.Infrastructure.Business.Dtos;
+using CarRental.Infrastructure.Business.Exceptions;
+using CarRental.Infrastructure.Business.Services;
+using CarRental.Infrastructure.Data.Context;
+using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace CarRental.Core.Test.Business.Services
+namespace CarRental.Infrastructure.Test.Business.Services
 {
     public class CustomerServiceTests
     {
@@ -67,7 +67,7 @@ namespace CarRental.Core.Test.Business.Services
         }
 
         #endregion
-   
+
         #region GetAllCustomers
 
         [Fact]

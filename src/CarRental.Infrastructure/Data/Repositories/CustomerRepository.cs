@@ -1,8 +1,8 @@
-﻿using CarRental.Core.Business.Converters;
-using CarRental.Core.Business.Filters;
-using CarRental.Core.Domain.Context;
+﻿using CarRental.Core.Business.Filters;
 using CarRental.Core.Domain.Entities;
-using CarRental.Core.Domain.RepositoryInterfaces;
+using CarRental.Infrastructure.Business.Converters;
+using CarRental.Infrastructure.Data.Context;
+using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.PredicateBuilder;
 using CarRental.SharedKernel.Repository;
 

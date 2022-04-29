@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CarRental.Core.Business.Dtos
+namespace CarRental.Infrastructure.Business.Dtos
 {
     public class CustomerDto
     {

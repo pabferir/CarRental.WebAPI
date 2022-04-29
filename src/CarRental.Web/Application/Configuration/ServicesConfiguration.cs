@@ -1,8 +1,8 @@
-﻿using CarRental.Core.Business.Services;
-using CarRental.Core.Domain.Context;
-using CarRental.Core.Domain.RepositoryInterfaces;
-using CarRental.Core.Domain.ServiceInterfaces;
+﻿using CarRental.Infrastructure.Business.ServiceInterfaces;
+using CarRental.Infrastructure.Business.Services;
+using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.Repositories;
+using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.Repository;
 using CarRental.SharedKernel.Service;
 using CarRental.SharedKernel.UnitOfWork;

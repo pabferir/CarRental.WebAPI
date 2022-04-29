@@ -1,4 +1,4 @@
-﻿namespace CarRental.SharedKernel.Exceptions
+﻿namespace CarRental.SharedKernel.Repository.Exceptions
 {
     public class DatabaseOperationNotCompletedException : Exception
     {

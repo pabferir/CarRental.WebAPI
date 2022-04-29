@@ -1,4 +1,4 @@
-﻿using CarRental.Core.Domain.Context;
+﻿using CarRental.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarRental.Web.Application.Configuration
