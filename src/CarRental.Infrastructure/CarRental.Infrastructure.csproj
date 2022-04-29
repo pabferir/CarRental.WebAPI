@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CarRental.Core\CarRental.Core.csproj" />
+    <ProjectReference Include="..\CarRental.SharedKernel\CarRental.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>
