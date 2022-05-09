@@ -7,6 +7,7 @@ using CarRental.SharedKernel.Repository;
 using CarRental.SharedKernel.Service;
 using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace CarRental.Web.Application.Configuration
 {
@@ -15,6 +16,7 @@ namespace CarRental.Web.Application.Configuration
         public static void SetupServiceContainer(this IServiceCollection services, IConfiguration configuration)
         {
             SetupDatabase<CarRentalDbContext>(services, configuration, "CarRentalPostgreSQL");
+            SetupLogging(configuration);
             SetupRepositories(services);
             SetupUnitOfWork(services);
             SetupServices(services);
@@ -23,6 +25,13 @@ namespace CarRental.Web.Application.Configuration
         private static void SetupDatabase<TContext>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where TContext : DbContext
         {
             services.AddDbContext<TContext>(options => options.UseNpgsql(configuration.GetConnectionString(connectionStringName)));
+        }
+
+        private static void SetupLogging(IConfiguration configuration)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
         }
 
         private static void SetupRepositories(IServiceCollection services)
@@ -36,7 +45,7 @@ namespace CarRental.Web.Application.Configuration
         {
             services.AddTransient(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
         }
-      
+
         private static void SetupServices(IServiceCollection services)
         {
             services.AddTransient(typeof(IService<>), typeof(Service<>));
