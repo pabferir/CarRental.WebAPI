@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CarRental.SharedKernel.UnitOfWork
 {
@@ -9,11 +10,13 @@ namespace CarRental.SharedKernel.UnitOfWork
     {
         private TContext Context { get; }
         private IServiceProvider ServiceProvider { get; }
+        private readonly ILogger<UnitOfWork<TContext>> _logger;
 
-        public UnitOfWork(TContext context, IServiceProvider serviceProvider)
+        public UnitOfWork(TContext context, IServiceProvider serviceProvider, ILogger<UnitOfWork<TContext>> logger)
         {
             Context = context;
             ServiceProvider = serviceProvider;
+            _logger = logger;
         }
 
         /// <summary>
@@ -27,6 +30,7 @@ namespace CarRental.SharedKernel.UnitOfWork
             var repository = ServiceProvider.GetService<TRepository>();
             if (repository == null)
             {
+                _logger.LogError($"Error while attempting to find the repository of type {typeof(TRepository).Name} in the services container.");
                 throw new RepositoryNotFoundException($"Couldn't find the repository of type {typeof(TRepository).Name} in the services container. Please, register the repository during startup.");
             }
 
@@ -52,6 +56,7 @@ namespace CarRental.SharedKernel.UnitOfWork
         {
             if (transaction == null)
             {
+                _logger.LogError($"Error while attempting to commit database operation from null transaction: {@transaction}.");
                 throw new NullTransactionException("Cannot commit database operation from null transaction.");
             }
             try
@@ -61,6 +66,7 @@ namespace CarRental.SharedKernel.UnitOfWork
             }
             catch (OperationCanceledException)
             {
+                _logger.LogInformation($"Transaction {transaction.TransactionId} cancelled. Starting rollback.");
                 await RollbackAsync(transaction).ConfigureAwait(false);
                 throw;
             }
@@ -83,6 +89,7 @@ namespace CarRental.SharedKernel.UnitOfWork
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                _logger.LogError($"Error while attempting to save changes: {ex.Message} | InnerException: {ex.InnerException}.");
                 foreach (var entry in ex.Entries)
                 {
                     var databaseValues = entry.GetDatabaseValues();
@@ -99,10 +106,11 @@ namespace CarRental.SharedKernel.UnitOfWork
         /// <param name="transaction"> Represents the ongoing transaction to rollback. </param>
         /// <returns> A task representing the asynchronous operation. </returns>
         /// <exception cref="NullTransactionException"> Thrown when the transaction provided is not currently available. </exception>
-        private static Task RollbackAsync(IDbContextTransaction transaction)
+        private Task RollbackAsync(IDbContextTransaction transaction)
         {
             if (transaction == null)
             {
+                _logger.LogError($"Error while attempting to rollback from null transaction: {@transaction}.");
                 throw new NullTransactionException("Cannot rollback database operation from null transaction.");
             }
 
