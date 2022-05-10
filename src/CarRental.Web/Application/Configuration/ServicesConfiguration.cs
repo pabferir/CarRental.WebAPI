@@ -13,13 +13,13 @@ namespace CarRental.Web.Application.Configuration
 {
     public static class ServicesConfiguration
     {
-        public static void SetupServiceContainer(this IServiceCollection services, IConfiguration configuration)
+        public static void SetupServiceContainer(this WebApplicationBuilder builder)
         {
-            SetupDatabase<CarRentalDbContext>(services, configuration, "CarRentalPostgreSQL");
-            SetupLogging(configuration);
-            SetupRepositories(services);
-            SetupUnitOfWork(services);
-            SetupServices(services);
+            SetupDatabase<CarRentalDbContext>(builder.Services, builder.Configuration, "CarRentalPostgreSQL");
+            SetupLogging(builder.Configuration, builder.Host);
+            SetupRepositories(builder.Services);
+            SetupUnitOfWork(builder.Services);
+            SetupServices(builder.Services);
         }
 
         private static void SetupDatabase<TContext>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where TContext : DbContext
@@ -27,11 +27,13 @@ namespace CarRental.Web.Application.Configuration
             services.AddDbContext<TContext>(options => options.UseNpgsql(configuration.GetConnectionString(connectionStringName)));
         }
 
-        private static void SetupLogging(IConfiguration configuration)
+        private static void SetupLogging(IConfiguration configuration, IHostBuilder host)
         {
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
+
+            host.UseSerilog();
         }
 
         private static void SetupRepositories(IServiceCollection services)

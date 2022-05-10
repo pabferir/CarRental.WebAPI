@@ -1,5 +1,4 @@
 using CarRental.Web.Application.Configuration;
-using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 #region Custom services
-builder.Services.SetupServiceContainer(builder.Configuration);
-builder.Host.UseSerilog();
+builder.SetupServiceContainer();
 #endregion
 
 var app = builder.Build();
