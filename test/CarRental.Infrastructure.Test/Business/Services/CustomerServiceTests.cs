@@ -6,6 +6,7 @@ using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
     public class CustomerServiceTests
     {
         private readonly CustomerService _sut;
+        private readonly Mock<ILogger<CustomerService>> _mockLogger = new();
         private readonly Mock<IUnitOfWork<CarRentalDbContext>> _mockUoW = new();
         private readonly Mock<ICustomerRepository> _mockCustomerRepository = new();
         private readonly Mock<IDbContextTransaction> _mockDbContextTransaction = new();
@@ -26,7 +28,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         {
             _mockUoW.Setup(uoW => uoW.GetRepository<ICustomerRepository>()).Returns(_mockCustomerRepository.Object);
             _mockUoW.Setup(uoW => uoW.BeginTransactionAsync()).ReturnsAsync(_mockDbContextTransaction.Object);
-            _sut = new CustomerService(_mockUoW.Object);
+            _sut = new CustomerService(_mockLogger.Object, _mockUoW.Object);
         }
 
         #region CreateCustomer

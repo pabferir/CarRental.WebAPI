@@ -6,16 +6,19 @@ using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.Service;
 using CarRental.SharedKernel.UnitOfWork;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace CarRental.Infrastructure.Business.Services
 {
     public class CustomerService : Service<CarRentalDbContext>, ICustomerService
     {
+        private readonly ILogger<CustomerService> _logger;
         private readonly ICustomerRepository _customerRepository;
 
-        public CustomerService(IUnitOfWork<CarRentalDbContext> uoW) : base(uoW)
+        public CustomerService(ILogger<CustomerService> logger, IUnitOfWork<CarRentalDbContext> uoW) : base(uoW)
         {
+            _logger = logger;
             _customerRepository = uoW.GetRepository<ICustomerRepository>();
         }
 
@@ -31,13 +34,15 @@ namespace CarRental.Infrastructure.Business.Services
         /// <exception cref="CustomerNotCreatedException"> Thrown when the Insert operation can't be completed. </exception>
         public async Task<CustomerDto> CreateCustomer(string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber)
         {
-            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);            
+            using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
             var result = await _customerRepository.InsertCustomer(identityNumber, name, surname, dateOfBirth, telephoneNumber).ConfigureAwait(false);
             if (result == null)
             {
+                _logger.LogError($"Error while attempting to create the Customer {name} {surname} in the Database.");
                 throw new CustomerNotCreatedException("Couldn't create the Customer in the Database.");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
+
             return CustomerConverter.ModelToDto(result);
         }
 
@@ -48,13 +53,13 @@ namespace CarRental.Infrastructure.Business.Services
         public async Task<IEnumerable<CustomerDto>> GetAllCustomers()
         {
             var customers = await _customerRepository.GetCustomersBy().ConfigureAwait(false);
-            if (!customers.Any())
+            if (customers == null)
             {
-                //throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
-                return new List<CustomerDto>();
+                _logger.LogError($"Error while attempting to get all Customers from the Database.");
+                throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
             }
 
-            return customers.Select(CustomerConverter.ModelToDto);
+            return customers.Any() ? customers.Select(CustomerConverter.ModelToDto) : new List<CustomerDto>();
         }
 
         /// <summary>
@@ -68,6 +73,7 @@ namespace CarRental.Infrastructure.Business.Services
             var customer = (await _customerRepository.GetCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
             if (customer == null)
             {
+                _logger.LogError($"Error while attempting to get Customer with Id {id} in the Database.");
                 throw new CustomerNotFoundException($"Couldn't find the Customer with Id {id} in the Database.");
             }
 
@@ -88,10 +94,10 @@ namespace CarRental.Infrastructure.Business.Services
         public async Task<CustomerDto> EditCustomer(Guid id, string identityNumber, string name, string surname, DateTime dateOfBirth, string telephoneNumber)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            //await GetCustomerById(id);
             var result = await _customerRepository.UpdateCustomer(id, identityNumber, name, surname, dateOfBirth, telephoneNumber).ConfigureAwait(false);
             if (result == null)
             {
+                _logger.LogError($"Error while attempting to update the Customer with Id {id} in the Database.");
                 throw new CustomerNotUpdatedException($"Couldn't update the Customer with Id {id} in the Database.");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
@@ -110,6 +116,7 @@ namespace CarRental.Infrastructure.Business.Services
             var customers = await _customerRepository.DeleteCustomersBy().ConfigureAwait(false);
             if (!customers.Any())
             {
+                _logger.LogError("Couldn't delete all Customers in the Database");
                 throw new CustomerNotDeletedException("Couldn't delete all Customers in the Database");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
@@ -129,7 +136,8 @@ namespace CarRental.Infrastructure.Business.Services
             var customer = (await _customerRepository.DeleteCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
             if (customer == null)
             {
-                throw new CustomerNotDeletedException($"Couldn't delete Customer with Id { id } in the Database");
+                _logger.LogError($"Couldn't delete Customer with Id {id} in the Database");
+                throw new CustomerNotDeletedException($"Couldn't delete Customer with Id {id} in the Database");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
