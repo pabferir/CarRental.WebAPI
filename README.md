@@ -41,6 +41,8 @@ This project makes use of the following technologies:
 - [.NET 6](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6)
 - [ASP.NET Core 6](https://docs.microsoft.com/en-us/aspnet/core/release-notes/aspnetcore-6.0?view=aspnetcore-6.0)
 - [Entity Framework Core 6](https://docs.microsoft.com/ef/core/what-is-new/ef-core-6.0/whatsnew)
+- [Serilog](https://serilog.net/)
+- [Graylog](https://www.graylog.org/)
 - [xUnit](https://xunit.net/)
 - [Moq](https://github.com/moq/moq)
 - [GitHub Actions](https://github.com/features/actions)
