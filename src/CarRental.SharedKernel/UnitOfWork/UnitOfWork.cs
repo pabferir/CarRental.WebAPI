@@ -56,7 +56,7 @@ namespace CarRental.SharedKernel.UnitOfWork
         {
             if (transaction == null)
             {
-                _logger.LogError($"Error while attempting to commit database operation from null transaction: {@transaction}.");
+                _logger.LogError($"Error while attempting to commit database operation from null transaction: {transaction}.");
                 throw new NullTransactionException("Cannot commit database operation from null transaction.");
             }
             try
@@ -110,7 +110,7 @@ namespace CarRental.SharedKernel.UnitOfWork
         {
             if (transaction == null)
             {
-                _logger.LogError($"Error while attempting to rollback from null transaction: {@transaction}.");
+                _logger.LogError($"Error while attempting to rollback from null transaction: {transaction}.");
                 throw new NullTransactionException("Cannot rollback database operation from null transaction.");
             }
 
