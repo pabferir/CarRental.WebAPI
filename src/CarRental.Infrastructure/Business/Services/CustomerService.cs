@@ -52,7 +52,7 @@ namespace CarRental.Infrastructure.Business.Services
         /// <returns> An enumerable containing a CustomerDto for each of the existing Customers. </returns>
         public async Task<IEnumerable<CustomerDto>> GetAllCustomers()
         {
-            var customers = await _customerRepository.GetCustomersBy().ConfigureAwait(false);
+            var customers = await _customerRepository.GetAllCustomers().ConfigureAwait(false);
             if (customers == null)
             {
                 _logger.LogError($"Error while attempting to get all Customers from the Database.");
@@ -70,7 +70,7 @@ namespace CarRental.Infrastructure.Business.Services
         /// <exception cref="CustomerNotFoundException"> Thrown when there is no Customer with a primary key matching the given Id in the Database. </exception>
         public async Task<CustomerDto> GetCustomerById(Guid id)
         {
-            var customer = (await _customerRepository.GetCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
+            var customer = await _customerRepository.GetCustomerById(id).ConfigureAwait(false);
             if (customer == null)
             {
                 _logger.LogError($"Error while attempting to get Customer with Id {id} in the Database.");
@@ -113,15 +113,15 @@ namespace CarRental.Infrastructure.Business.Services
         public async Task<IEnumerable<CustomerDto>> DeleteAllCustomers()
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var customers = await _customerRepository.DeleteCustomersBy().ConfigureAwait(false);
-            if (!customers.Any())
+            var customers = await _customerRepository.DeleteAllCustomers().ConfigureAwait(false);
+            if (customers == null)
             {
                 _logger.LogError("Couldn't delete all Customers in the Database");
                 throw new CustomerNotDeletedException("Couldn't delete all Customers in the Database");
             }
             await UoW.CommitAsync(transaction).ConfigureAwait(false);
 
-            return customers.Select(CustomerConverter.ModelToDto);
+            return customers.Any() ? customers.Select(CustomerConverter.ModelToDto) : new List<CustomerDto>();
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace CarRental.Infrastructure.Business.Services
         public async Task<CustomerDto> DeleteCustomerById(Guid id)
         {
             using var transaction = await UoW.BeginTransactionAsync().ConfigureAwait(false);
-            var customer = (await _customerRepository.DeleteCustomersBy(id: id).ConfigureAwait(false)).FirstOrDefault();
+            var customer = await _customerRepository.DeleteCustomerById(id).ConfigureAwait(false);
             if (customer == null)
             {
                 _logger.LogError($"Couldn't delete Customer with Id {id} in the Database");

@@ -78,7 +78,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
             var customerOne = InitializeCustomer(out Guid id1, out string identityNumber1, out string name1, out string surname1, out DateTime dateOfBirth1, out string telephoneNumber1);
             var customerTwo = InitializeCustomer(out Guid id2, out string identityNumber2, out string name2, out string surname2, out DateTime dateOfBirth2, out string telephoneNumber2);
             var customerThree = InitializeCustomer(out Guid id3, out string identityNumber3, out string name3, out string surname3, out DateTime dateOfBirth3, out string telephoneNumber3);
-            _mockCustomerRepository.Setup(repository => repository.GetCustomersBy(default, default, default, default, default, default)).ReturnsAsync(new List<Customer> { customerOne, customerTwo, customerThree });
+            _mockCustomerRepository.Setup(repository => repository.GetAllCustomers()).ReturnsAsync(new List<Customer> { customerOne, customerTwo, customerThree });
 
             var result = await _sut.GetAllCustomers();
 
@@ -110,7 +110,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         [Fact]
         public async Task GetAllCustomers_WhenDatabaseIsEmpty_ShouldReturnEmptyListOfCustomerDtoAsync()
         {
-            _mockCustomerRepository.Setup(repository => repository.GetCustomersBy(default, default, default, default, default, default)).ReturnsAsync(new List<Customer>());
+            _mockCustomerRepository.Setup(repository => repository.GetAllCustomers()).ReturnsAsync(new List<Customer>());
 
             var result = await _sut.GetAllCustomers();
 
@@ -126,7 +126,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public async Task GetCustomerById_WhenCustomerExists_ShouldReturnCustomerDtoAsync()
         {
             var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
-            _mockCustomerRepository.Setup(repository => repository.GetCustomersBy(id, default, default, default, default, default)).ReturnsAsync(new List<Customer>() { customer });
+            _mockCustomerRepository.Setup(repository => repository.GetCustomerById(id)).ReturnsAsync(customer);
 
             var result = await _sut.GetCustomerById(id);
 
@@ -143,7 +143,6 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public Task GetCustomerById_WhenCustomerDoesNotExist_ShouldThrowCustomerNotFoundException()
         {
             var id = Guid.NewGuid();
-             _mockCustomerRepository.Setup(repository => repository.GetCustomersBy(id, default, default, default, default, default)).ReturnsAsync(new List<Customer>());
 
             return Assert.ThrowsAsync<CustomerNotFoundException>(async () => await _sut.GetCustomerById(id));
         }
@@ -198,7 +197,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public async Task DeleteAllCustomers_WhenOperationsSucceed_ShouldCommitTransactionAsync()
         {
             var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(default, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>() { customer });
+            _mockCustomerRepository.Setup(repository => repository.DeleteAllCustomers()).ReturnsAsync(new List<Customer>() { customer });
 
             var result = await _sut.DeleteAllCustomers();
 
@@ -209,7 +208,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public async Task DeleteAllCustomers_WhenDatabaseIsNotEmpty_ShouldReturnTrueAsync()
         {
             var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(default, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>() { customer });
+            _mockCustomerRepository.Setup(repository => repository.DeleteAllCustomers()).ReturnsAsync(new List<Customer>() { customer });
 
             var result = await _sut.DeleteAllCustomers();
 
@@ -223,11 +222,14 @@ namespace CarRental.Infrastructure.Test.Business.Services
         }
 
         [Fact]
-        public Task DeleteAllCustomers_WhenRepositoryReturnsEmptyList_ShouldThrowCustomerNotDeletedException()
+        public async Task DeleteAllCustomers_WhenRepositoryReturnsEmptyList_ShouldThrowCustomerNotDeletedException()
         {
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(default, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>());
+            _mockCustomerRepository.Setup(repository => repository.DeleteAllCustomers()).ReturnsAsync(new List<Customer>());
 
-            return Assert.ThrowsAsync<CustomerNotDeletedException>(async () => await _sut.DeleteAllCustomers());
+            var result = await _sut.DeleteAllCustomers();
+
+            Assert.IsType<List<CustomerDto>>(result);
+            Assert.False(result.Any());
         }
 
         #endregion
@@ -238,7 +240,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public async Task DeleteCustomerById_WhenOperationsSucceed_ShouldCommitTransactionAsync()
         {
             var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(id, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>() { customer });
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerById(id)).ReturnsAsync(customer);
 
             var result = await _sut.DeleteCustomerById(id);
 
@@ -249,7 +251,7 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public async Task DeleteCustomerById_WhenCustomerExists_ShouldReturnCustomerAsync()
         {
             var customer = InitializeCustomer(out Guid id, out string identityNumber, out string name, out string surname, out DateTime dateOfBirth, out string telephoneNumber);
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(id, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>() { customer });
+            _mockCustomerRepository.Setup(repository => repository.DeleteCustomerById(id)).ReturnsAsync(customer);
 
             var result = await _sut.DeleteCustomerById(id);
 
@@ -266,7 +268,6 @@ namespace CarRental.Infrastructure.Test.Business.Services
         public Task DeleteCustomerById_WhenCustomerDoesNotExist_ShouldThrowCustomerNotDeletedException()
         {
             var id = Guid.NewGuid();
-            _mockCustomerRepository.Setup(repository => repository.DeleteCustomersBy(id, default, default, default, default, default, false)).ReturnsAsync(new List<Customer>());
 
             return Assert.ThrowsAsync<CustomerNotDeletedException>(async () => await _sut.DeleteCustomerById(id));
         }
