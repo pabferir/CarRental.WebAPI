@@ -1,4 +1,4 @@
-# CarRental.WebAPI [![.NET](https://github.com/pabferir/CarRental.WebAPI/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/pabferir/CarRental.WebAPI/actions/workflows/dotnet.yml) 
+# CarRental.WebAPI [![Build](https://github.com/pabferir/CarRental.WebAPI/actions/workflows/build.yml/badge.svg)](https://github.com/pabferir/CarRental.WebAPI/actions/workflows/build.yml)
 > An ASP.NET Core 6.0 Web API using a Car Rental data model for training in .NET fundamentals and design patterns.
 
 ## Data Model
@@ -46,6 +46,7 @@ This project makes use of the following technologies:
 - [xUnit](https://xunit.net/)
 - [Moq](https://github.com/moq/moq)
 - [GitHub Actions](https://github.com/features/actions)
+- [SonarCloud](https://sonarcloud.io)
 
 ## License [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
