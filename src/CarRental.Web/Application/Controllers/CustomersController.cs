@@ -21,6 +21,7 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
         {
             var result = await _customerService.CreateCustomer(customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber);
+
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
@@ -31,7 +32,8 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> GetAllCustomers()
         {
             var result = await _customerService.GetAllCustomers();
-            return StatusCode(StatusCodes.Status200OK, result);
+
+            return Ok(result);
         }
 
         [HttpGet("/{id}")]
@@ -41,7 +43,8 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
             var result = await _customerService.GetCustomerById(id);
-            return StatusCode(StatusCodes.Status200OK, result);
+
+            return Ok(result);
         }
 
         [HttpPut("/{id}")]
@@ -51,7 +54,8 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> EditCustomer(CustomerDto customerDto)
         {
             var result = await _customerService.EditCustomer(customerDto.Id, customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber).ConfigureAwait(false);
-            return StatusCode(StatusCodes.Status200OK, result);
+
+            return Ok(result);
         }
 
         [HttpDelete]
@@ -61,7 +65,8 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> DeleteAllCustomers()
         {
             var result = await _customerService.DeleteAllCustomers().ConfigureAwait(false);
-            return StatusCode(StatusCodes.Status200OK, result);
+
+            return Ok(result);
         }
 
         [HttpDelete("/{id}")]
@@ -71,7 +76,8 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
             var result = await _customerService.DeleteCustomerById(id).ConfigureAwait(false);
-            return StatusCode(StatusCodes.Status200OK, result);
+
+            return Ok(result);
         }
     }
 }
