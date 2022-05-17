@@ -1,5 +1,7 @@
 ﻿using CarRental.Infrastructure.Business.Dtos;
 using CarRental.Infrastructure.Business.ServiceInterfaces;
+using CarRental.Infrastructure.Business.UseCases;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CarRental.Web.Application.Controllers
@@ -9,10 +11,12 @@ namespace CarRental.Web.Application.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+        private readonly IMediator _mediator;
 
-        public CustomersController(ICustomerService customerService)
+        public CustomersController(ICustomerService customerService, IMediator mediator)
         {
             _customerService = customerService;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -31,9 +35,12 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var result = await _customerService.GetAllCustomers();
+            var response = await _mediator.Send(new GetAllCustomers.Query());
 
-            return Ok(result);
+            if (response == null)
+                return NoContent();
+
+            return Ok(response);
         }
 
         [HttpGet("/{id}")]
