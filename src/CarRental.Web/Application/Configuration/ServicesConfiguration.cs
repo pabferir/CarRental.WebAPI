@@ -6,6 +6,7 @@ using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.Repository;
 using CarRental.SharedKernel.Service;
 using CarRental.SharedKernel.UnitOfWork;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -20,6 +21,7 @@ namespace CarRental.Web.Application.Configuration
             SetupRepositories(builder.Services);
             SetupUnitOfWork(builder.Services);
             SetupServices(builder.Services);
+            SetupMediatR(builder.Services);
         }
 
         private static void SetupDatabase<TContext>(IServiceCollection services, IConfiguration configuration, string connectionStringName) where TContext : DbContext
@@ -53,6 +55,11 @@ namespace CarRental.Web.Application.Configuration
             services.AddTransient(typeof(IService<>), typeof(Service<>));
             // Add service implementations here
             services.AddTransient<ICustomerService, CustomerService>();
+        }
+
+        private static void SetupMediatR(IServiceCollection services)
+        {
+            services.AddMediatR(typeof(CarRentalDbContext).Assembly);
         }
     }
 }
