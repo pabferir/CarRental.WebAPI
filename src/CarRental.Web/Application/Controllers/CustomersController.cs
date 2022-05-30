@@ -1,6 +1,6 @@
 ﻿using CarRental.Infrastructure.Business.Dtos;
+using CarRental.Infrastructure.Business.Handlers.Queries;
 using CarRental.Infrastructure.Business.ServiceInterfaces;
-using CarRental.Infrastructure.Business.UseCases;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,9 +35,9 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var response = await _mediator.Send(new GetAllCustomers.Query());
+            var response = await _mediator.Send(new GetAllCustomersQuery());
 
-            if (response == null)
+            if (response == default)
                 return NoContent();
 
             return Ok(response);

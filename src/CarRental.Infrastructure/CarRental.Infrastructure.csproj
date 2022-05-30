@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Business\Handlers\Commands\" />
     <Folder Include="Data\Models\" />
   </ItemGroup>
 
