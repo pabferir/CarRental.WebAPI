@@ -78,14 +78,14 @@ namespace CarRental.Web.Application.Controllers
         }
 
         [HttpDelete("/{id}")]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCustomerById(Guid id)
         {
-            var result = await _customerService.DeleteCustomerById(id).ConfigureAwait(false);
+            var response = await _mediator.Send(new DeleteCustomerByIdCommand(id)).ConfigureAwait(false);
 
-            return Ok(result);
+            return Ok(response);
         }
     }
 }
