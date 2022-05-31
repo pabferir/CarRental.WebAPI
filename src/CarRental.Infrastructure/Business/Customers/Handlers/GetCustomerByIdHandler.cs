@@ -16,7 +16,7 @@ namespace CarRental.Infrastructure.Business.Customers.Handlers
 
         public async Task<CustomerDto> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
-            var result = await _customerService.GetCustomerById(request.Id);
+            var result = await _customerService.GetCustomerById(request.Id).ConfigureAwait(false);
 
             return result;
         }

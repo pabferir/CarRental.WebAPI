@@ -16,7 +16,7 @@ namespace CarRental.Infrastructure.Business.Customers.Handlers
 
         public async Task<CustomerDto> Handle(AddCustomerCommand request, CancellationToken cancellationToken)
         {
-            var result = await _customerService.CreateCustomer(request.IdentityNumber, request.Name, request.Surname, request.DateOfBirth, request.TelephoneNumber);
+            var result = await _customerService.CreateCustomer(request.IdentityNumber, request.Name, request.Surname, request.DateOfBirth, request.TelephoneNumber).ConfigureAwait(false);
 
             return result;
         }
