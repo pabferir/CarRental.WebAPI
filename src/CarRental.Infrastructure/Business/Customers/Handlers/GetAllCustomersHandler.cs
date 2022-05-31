@@ -27,7 +27,7 @@ namespace CarRental.Infrastructure.Business.Customers.Handlers
                 throw new CustomerNotFoundException("Couldn't find any Customer in the Database");
             }
 
-            return result.Any() ? result.ToList() : default;
+            return result.ToList();
         }
     }
 }

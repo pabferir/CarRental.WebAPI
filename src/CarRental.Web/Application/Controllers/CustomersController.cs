@@ -38,8 +38,6 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> GetAllCustomers()
         {
             var response = await _mediator.Send(new GetAllCustomersQuery()).ConfigureAwait(false);
-            if (response == default)
-                return NoContent();
 
             return Ok(response);
         }
@@ -51,8 +49,6 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
             var response = await _mediator.Send(new GetCustomerByIdQuery(id)).ConfigureAwait(false);
-            if (response == default)
-                return NoContent();
 
             return Ok(response);
         }
@@ -71,14 +67,14 @@ namespace CarRental.Web.Application.Controllers
         }
 
         [HttpDelete]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IList<CustomerDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteAllCustomers()
         {
-            var result = await _customerService.DeleteAllCustomers().ConfigureAwait(false);
+            var response = await _mediator.Send(new DeleteAllCustomersCommand()).ConfigureAwait(false);
 
-            return Ok(result);
+            return Ok(response);
         }
 
         [HttpDelete("/{id}")]
