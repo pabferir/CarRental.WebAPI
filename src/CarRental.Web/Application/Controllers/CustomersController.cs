@@ -26,9 +26,9 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCustomer([FromBody] AddCustomerRequest request)
         {
-            var result = await _mediator.Send(new AddCustomerCommand(request));
+            var response = await _mediator.Send(new AddCustomerCommand(request));
 
-            return StatusCode(StatusCodes.Status201Created, result);
+            return StatusCode(StatusCodes.Status201Created, response);
         }
 
         [HttpGet]
@@ -38,7 +38,6 @@ namespace CarRental.Web.Application.Controllers
         public async Task<IActionResult> GetAllCustomers()
         {
             var response = await _mediator.Send(new GetAllCustomersQuery());
-
             if (response == default)
                 return NoContent();
 
@@ -51,9 +50,11 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
-            var result = await _customerService.GetCustomerById(id);
+            var response = await _mediator.Send(new GetCustomerByIdQuery(id));
+            if (response == default)
+                return NoContent();
 
-            return Ok(result);
+            return Ok(response);
         }
 
         [HttpPut("/{id}")]
