@@ -26,7 +26,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddCustomer([FromBody] AddCustomerRequest request)
         {
-            var response = await _mediator.Send(new AddCustomerCommand(request));
+            var response = await _mediator.Send(new AddCustomerCommand(request)).ConfigureAwait(false);
 
             return StatusCode(StatusCodes.Status201Created, response);
         }
@@ -37,7 +37,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var response = await _mediator.Send(new GetAllCustomersQuery());
+            var response = await _mediator.Send(new GetAllCustomersQuery()).ConfigureAwait(false);
             if (response == default)
                 return NoContent();
 
@@ -50,7 +50,7 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
-            var response = await _mediator.Send(new GetCustomerByIdQuery(id));
+            var response = await _mediator.Send(new GetCustomerByIdQuery(id)).ConfigureAwait(false);
             if (response == default)
                 return NoContent();
 
@@ -61,11 +61,13 @@ namespace CarRental.Web.Application.Controllers
         [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditCustomer(CustomerDto customerDto)
+        public async Task<IActionResult> EditCustomer([FromBody] EditCustomerRequest request)
         {
-            var result = await _customerService.EditCustomer(customerDto.Id, customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber).ConfigureAwait(false);
+            var response = await _mediator.Send(new EditCustomerCommand(request)).ConfigureAwait(false);
+            if (response == default)
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
 
-            return Ok(result);
+            return Ok(response);
         }
 
         [HttpDelete]
