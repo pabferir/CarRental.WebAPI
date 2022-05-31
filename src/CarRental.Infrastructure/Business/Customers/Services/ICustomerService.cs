@@ -1,6 +1,6 @@
-﻿using CarRental.Infrastructure.Business.Dtos;
+﻿using CarRental.Infrastructure.Business.Customers.Dtos;
 
-namespace CarRental.Infrastructure.Business.ServiceInterfaces
+namespace CarRental.Infrastructure.Business.Customers.Services
 {
     public interface ICustomerService
     {

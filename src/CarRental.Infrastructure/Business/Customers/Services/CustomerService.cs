@@ -1,7 +1,6 @@
-﻿using CarRental.Infrastructure.Business.Converters;
-using CarRental.Infrastructure.Business.Dtos;
-using CarRental.Infrastructure.Business.Exceptions;
-using CarRental.Infrastructure.Business.ServiceInterfaces;
+﻿using CarRental.Infrastructure.Business.Customers.Converters;
+using CarRental.Infrastructure.Business.Customers.Dtos;
+using CarRental.Infrastructure.Business.Customers.Exceptions;
 using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.Service;
@@ -9,7 +8,7 @@ using CarRental.SharedKernel.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using System.Data;
 
-namespace CarRental.Infrastructure.Business.Services
+namespace CarRental.Infrastructure.Business.Customers.Services
 {
     public class CustomerService : Service<CarRentalDbContext>, ICustomerService
     {

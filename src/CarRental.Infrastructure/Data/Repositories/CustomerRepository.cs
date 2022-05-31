@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using CarRental.Core.Business.Filters;
 using CarRental.Core.Domain.Entities;
-using CarRental.Infrastructure.Business.Converters;
+using CarRental.Infrastructure.Business.Customers.Converters;
 using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.PredicateBuilder;

@@ -1,7 +1,7 @@
 ﻿using CarRental.Core.Domain.Entities;
-using CarRental.Infrastructure.Business.Dtos;
-using CarRental.Infrastructure.Business.Exceptions;
-using CarRental.Infrastructure.Business.Services;
+using CarRental.Infrastructure.Business.Customers.Dtos;
+using CarRental.Infrastructure.Business.Customers.Exceptions;
+using CarRental.Infrastructure.Business.Customers.Services;
 using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
 using CarRental.SharedKernel.UnitOfWork;

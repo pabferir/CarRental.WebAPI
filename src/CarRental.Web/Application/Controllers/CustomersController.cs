@@ -1,6 +1,8 @@
-﻿using CarRental.Infrastructure.Business.Dtos;
-using CarRental.Infrastructure.Business.Handlers.Queries;
-using CarRental.Infrastructure.Business.ServiceInterfaces;
+﻿using CarRental.Infrastructure.Business.Customers.Commands;
+using CarRental.Infrastructure.Business.Customers.Dtos;
+using CarRental.Infrastructure.Business.Customers.Queries;
+using CarRental.Infrastructure.Business.Customers.Requests;
+using CarRental.Infrastructure.Business.Customers.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,9 +24,9 @@ namespace CarRental.Web.Application.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddCustomer(CustomerDto customerDto)
+        public async Task<IActionResult> AddCustomer([FromBody] AddCustomerRequest request)
         {
-            var result = await _customerService.CreateCustomer(customerDto.IdentityNumber, customerDto.Name, customerDto.Surname, customerDto.DateOfBirth, customerDto.TelephoneNumber);
+            var result = await _mediator.Send(new AddCustomerCommand(request));
 
             return StatusCode(StatusCodes.Status201Created, result);
         }

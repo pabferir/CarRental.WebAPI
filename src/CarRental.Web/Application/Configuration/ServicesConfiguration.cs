@@ -1,5 +1,4 @@
-﻿using CarRental.Infrastructure.Business.ServiceInterfaces;
-using CarRental.Infrastructure.Business.Services;
+﻿using CarRental.Infrastructure.Business.Customers.Services;
 using CarRental.Infrastructure.Data.Context;
 using CarRental.Infrastructure.Data.Repositories;
 using CarRental.Infrastructure.Data.RepositoryInterfaces;
