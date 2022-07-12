@@ -2,7 +2,6 @@
 using CarRental.Infrastructure.Business.Customers.Dtos;
 using CarRental.Infrastructure.Business.Customers.Queries;
 using CarRental.Infrastructure.Business.Customers.Requests;
-using CarRental.Infrastructure.Business.Customers.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +11,10 @@ namespace CarRental.Web.Application.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly ICustomerService _customerService;
         private readonly IMediator _mediator;
 
-        public CustomersController(ICustomerService customerService, IMediator mediator)
+        public CustomersController(IMediator mediator)
         {
-            _customerService = customerService;
             _mediator = mediator;
         }
 
